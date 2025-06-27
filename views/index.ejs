@@ -31,90 +31,77 @@
     <meta name="twitter:description" content="<%= description %>">
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="container">
-            <div class="nav-brand">
-                <h2>🎯 ClickBank</h2>
-            </div>
-            <div class="nav-menu" id="nav-menu">
-                <a href="#features" class="nav-link">Features</a>
-                <a href="#pricing" class="nav-link">Pricing</a>
-                <a href="#testimonials" class="nav-link">Reviews</a>
-                <a href="#faq" class="nav-link">FAQ</a>
-                <a href="#contact" class="btn btn-primary">Get Started</a>
-            </div>
-            <div class="nav-toggle" id="nav-toggle">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <section class="hero">
+    <header class="header">
+        <nav class="nav container">
+            <a href="#" class="logo">
+                <img src="/images/logo.png" alt="ClickBank Secrets" class="logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+                <span class="logo-text">🎯 ClickBank Secrets</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="#about">About</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#pricing">Pricing</a></li>
+                <li><a href="#faq">FAQ</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <button class="mobile-menu-toggle" id="mobile-menu-toggle"><span>☰</span></button>
+        </nav>
+    </header>
+    <section class="hero hero-with-image">
+        <div class="hero-bg-image"></div>
         <div class="container">
             <div class="hero-content">
-                <h1 class="hero-title">
-                    Transform Your <span class="text-gradient">ClickBank Earnings</span>
-                </h1>
-                <p class="hero-description">
-                    <%= description %>
-                </p>
-                <div class="hero-cta">
-                    <a href="#pricing" class="btn btn-primary btn-lg">
-                        <i class="fas fa-rocket"></i>
-                        Get Started Now - $97
-                    </a>
-                    <p class="hero-guarantee">
-                        <i class="fas fa-shield-alt"></i>
-                        30-Day Money Back Guarantee
-                    </p>
+                <h1>Transform Your ClickBank Earnings</h1>
+                <p class="hero-subtitle"><%= description %></p>
+                <div class="product-showcase">
+                    <img src="/images/product-cover.jpg" alt="ClickBank Marketing Blueprint" class="product-image" onerror="this.style.display='none';">
+                    <img src="/images/product-mockup.png" alt="ClickBank Marketing Blueprint" class="product-image" onerror="this.style.display='none';">
                 </div>
-                <div class="hero-stats">
-                    <div class="stat">
-                        <span class="stat-number">10,000+</span>
-                        <span class="stat-label">Marketers Helped</span>
+                <div class="hero-cta">
+                    <a href="#pricing" class="btn btn-primary btn-lg">Get Started Free</a>
+                    <a href="#about" class="btn btn-secondary btn-lg">Learn More</a>
+                </div>
+                <div class="trust-indicators">
+                    <div class="trust-badge">
+                        <img src="/images/guarantee-badge.png" alt="Money Back Guarantee" class="trust-icon" onerror="this.innerHTML='✅';">
+                        <span>30-Day Guarantee</span>
                     </div>
-                    <div class="stat">
-                        <span class="stat-number">$2M+</span>
-                        <span class="stat-label">Revenue Generated</span>
+                    <div class="trust-badge">
+                        <img src="/images/secure-badge.png" alt="Secure" class="trust-icon" onerror="this.innerHTML='🔒';">
+                        <span>100% Secure</span>
                     </div>
-                    <div class="stat">
-                        <span class="stat-number">4.9★</span>
-                        <span class="stat-label">Customer Rating</span>
+                    <div class="trust-badge">
+                        <img src="/images/instant-badge.png" alt="Instant Access" class="trust-icon" onerror="this.innerHTML='⚡';">
+                        <span>Instant Access</span>
                     </div>
                 </div>
             </div>
         </div>
     </section>
-
-    <!-- Features Section -->
-    <section id="features" class="section">
+    <section id="about" class="section">
         <div class="container">
             <div class="section-header">
-                <h2>Why Choose Our Blueprint?</h2>
-                <p>Proven strategies that work in today's competitive market</p>
+                <h2 class="section-title">Why Choose Our ClickBank Blueprint?</h2>
+                <p class="section-subtitle">Join thousands of successful marketers who have transformed their income using our proven system</p>
             </div>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-chart-line"></i>
+            <div class="grid grid-3">
+                <div class="card fade-in">
+                    <div class="card-icon-img">
+                        <img src="/images/results-icon.png" alt="Proven Results" onerror="this.innerHTML='📈';">
                     </div>
                     <h3>Proven Results</h3>
                     <p>Our methodology has helped marketers achieve consistent monthly income ranging from $2,000 to $50,000+</p>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-map"></i>
+                <div class="card fade-in">
+                    <div class="card-icon-img">
+                        <img src="/images/guide-icon.png" alt="Step by Step Guide" onerror="this.innerHTML='🎯';">
                     </div>
                     <h3>Step-by-Step Guide</h3>
                     <p>Complete blueprint with actionable steps, templates, and checklists to get you started immediately</p>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-bullseye"></i>
+                <div class="card fade-in">
+                    <div class="card-icon-img">
+                        <img src="/images/convert-icon.png" alt="High Converting" onerror="this.innerHTML='💰';">
                     </div>
                     <h3>High-Converting</h3>
                     <p>Tested strategies and copy that convert visitors into paying customers consistently</p>
@@ -122,179 +109,182 @@
             </div>
         </div>
     </section>
-
-    <!-- Pricing Section -->
-    <section id="pricing" class="section bg-light">
+    <section id="features" class="section" style="background-color: var(--gray-50);">
         <div class="container">
             <div class="section-header">
-                <h2>Choose Your Plan</h2>
-                <p>Start your journey to ClickBank success today</p>
+                <h2 class="section-title">What You'll Get</h2>
+                <p class="section-subtitle">Everything you need to succeed in ClickBank marketing, delivered in an easy-to-follow format</p>
             </div>
-            <div class="pricing-grid">
-                <div class="pricing-card featured">
-                    <div class="pricing-header">
-                        <h3>Complete Blueprint</h3>
-                        <div class="price">
-                            <span class="currency">$</span>
-                            <span class="amount">97</span>
-                            <span class="period">one-time</span>
-                        </div>
-                    </div>
-                    <ul class="pricing-features">
-                        <li><i class="fas fa-check"></i> Complete marketing blueprint</li>
-                        <li><i class="fas fa-check"></i> Product selection guide</li>
-                        <li><i class="fas fa-check"></i> Landing page templates</li>
-                        <li><i class="fas fa-check"></i> Email sequences</li>
-                        <li><i class="fas fa-check"></i> Traffic generation strategies</li>
-                        <li><i class="fas fa-check"></i> Conversion optimization tips</li>
-                        <li><i class="fas fa-check"></i> Lifetime access</li>
-                        <li><i class="fas fa-check"></i> 30-day money-back guarantee</li>
+            <div class="grid grid-2">
+                <div class="card fade-in feature-card-with-image">
+                    <img src="/images/feature-1.jpg" alt="Niche Research" class="feature-image" onerror="this.style.display='none';">
+                    <h3>🎯 Niche Research Mastery</h3>
+                    <ul class="features-list">
+                        <li><span class="check-icon">✓</span> How to identify profitable niches</li>
+                        <li><span class="check-icon">✓</span> Competition analysis techniques</li>
+                        <li><span class="check-icon">✓</span> Keyword research strategies</li>
+                        <li><span class="check-icon">✓</span> Market validation methods</li>
                     </ul>
-                    <a href="#" class="btn btn-primary btn-lg btn-block">Get Started Now</a>
+                </div>
+                <div class="card fade-in feature-card-with-image">
+                    <img src="/images/feature-2.jpg" alt="Content Creation" class="feature-image" onerror="this.style.display='none';">
+                    <h3>📝 Content Creation</h3>
+                    <ul class="features-list">
+                        <li><span class="check-icon">✓</span> High-converting copy templates</li>
+                        <li><span class="check-icon">✓</span> Email sequence blueprints</li>
+                        <li><span class="check-icon">✓</span> Landing page optimization</li>
+                        <li><span class="check-icon">✓</span> Social media strategies</li>
+                    </ul>
+                </div>
+                <div class="card fade-in feature-card-with-image">
+                    <img src="/images/feature-3.jpg" alt="Traffic Generation" class="feature-image" onerror="this.style.display='none';">
+                    <h3>🚀 Traffic Generation</h3>
+                    <ul class="features-list">
+                        <li><span class="check-icon">✓</span> SEO optimization techniques</li>
+                        <li><span class="check-icon">✓</span> Paid advertising strategies</li>
+                        <li><span class="check-icon">✓</span> Social media marketing</li>
+                        <li><span class="check-icon">✓</span> Email marketing campaigns</li>
+                    </ul>
+                </div>
+                <div class="card fade-in feature-card-with-image">
+                    <img src="/images/feature-4.jpg" alt="Analytics & Tracking" class="feature-image" onerror="this.style.display='none';">
+                    <h3>📊 Analytics & Tracking</h3>
+                    <ul class="features-list">
+                        <li><span class="check-icon">✓</span> Conversion tracking setup</li>
+                        <li><span class="check-icon">✓</span> Performance analytics</li>
+                        <li><span class="check-icon">✓</span> A/B testing methodologies</li>
+                        <li><span class="check-icon">✓</span> ROI optimization</li>
+                    </ul>
                 </div>
             </div>
         </div>
     </section>
-
-    <!-- Testimonials Section -->
-    <section id="testimonials" class="section">
+    <section id="pricing" class="section">
         <div class="container">
             <div class="section-header">
-                <h2>What Our Customers Say</h2>
-                <p>Real results from real marketers</p>
+                <h2 class="section-title">Get Started Today</h2>
+                <p class="section-subtitle">Choose the plan that works best for your goals and budget</p>
             </div>
-            <div class="testimonials-grid">
-                <div class="testimonial-card">
-                    <div class="testimonial-content">
-                        <p>"This blueprint completely changed my approach to ClickBank marketing. I went from $200/month to over $5,000/month in just 3 months!"</p>
-                    </div>
-                    <div class="testimonial-author">
-                        <div class="author-info">
-                            <h4>Sarah Johnson</h4>
-                            <span>Digital Marketer</span>
-                        </div>
-                    </div>
+            <div class="pricing-card fade-in">
+                <div class="pricing-product-image">
+                    <img src="/images/pricing-product.jpg" alt="Complete ClickBank Marketing Blueprint" onerror="this.style.display='none';">
                 </div>
-                <div class="testimonial-card">
-                    <div class="testimonial-content">
-                        <p>"The step-by-step approach made everything so clear. I finally understood what I was doing wrong and how to fix it."</p>
-                    </div>
-                    <div class="testimonial-author">
-                        <div class="author-info">
-                            <h4>Mike Chen</h4>
-                            <span>Affiliate Marketer</span>
-                        </div>
-                    </div>
+                <h3>Complete ClickBank Marketing Blueprint</h3>
+                <div class="price">$97</div>
+                <p class="price-note">One-time payment • Lifetime access</p>
+                <ul class="features-list">
+                    <li><span class="check-icon">✓</span> Complete step-by-step blueprint</li>
+                    <li><span class="check-icon">✓</span> 50+ high-converting templates</li>
+                    <li><span class="check-icon">✓</span> Video training modules</li>
+                    <li><span class="check-icon">✓</span> Private community access</li>
+                    <li><span class="check-icon">✓</span> 30-day money-back guarantee</li>
+                    <li><span class="check-icon">✓</span> Lifetime updates</li>
+                </ul>
+                <div class="hero-cta">
+                    <button class="btn btn-primary btn-lg" onclick="handlePurchase('main_cta')">Get The Blueprint Now</button>
+                </div>
+                <div class="payment-methods">
+                    <img src="/images/payment-methods.png" alt="Secure Payment Methods" class="payment-img" onerror="this.innerHTML='💳 Secure Payment';">
+                </div>
+                <div class="countdown-timer" id="countdown-timer">
+                    <div>⏰ Limited Time Offer - Ends Soon!</div>
+                    <div class="timer-display" id="timer-display">23:59:59</div>
                 </div>
             </div>
         </div>
     </section>
-
-    <!-- FAQ Section -->
-    <section id="faq" class="section bg-light">
+    <section class="section">
         <div class="container">
             <div class="section-header">
-                <h2>Frequently Asked Questions</h2>
-                <p>Everything you need to know</p>
+                <h2 class="section-title">What Our Students Say</h2>
+                <p class="section-subtitle">Real results from real people who followed our blueprint</p>
             </div>
-            <div class="faq-list">
-                <div class="faq-item">
-                    <div class="faq-question">
-                        <h3>Is this suitable for beginners?</h3>
-                        <i class="fas fa-chevron-down"></i>
+            <div class="grid grid-3">
+                <div class="review-card fade-in">
+                    <div class="reviewer-avatar">
+                        <img src="/images/testimonial-1.jpg" alt="Sarah M." onerror="this.innerHTML='👩';">
                     </div>
-                    <div class="faq-answer">
-                        <p>Yes! Our blueprint is designed to work for both beginners and experienced marketers. We provide step-by-step instructions that anyone can follow.</p>
-                    </div>
+                    <div class="rating">⭐⭐⭐⭐⭐</div>
+                    <p class="review-text">"This blueprint completely changed my approach to ClickBank. I went from $0 to $3,200 in my first month!"</p>
+                    <div class="review-author">- Sarah M., New York</div>
                 </div>
-                <div class="faq-item">
-                    <div class="faq-question">
-                        <h3>How long does it take to see results?</h3>
-                        <i class="fas fa-chevron-down"></i>
+                <div class="review-card fade-in">
+                    <div class="reviewer-avatar">
+                        <img src="/images/testimonial-2.jpg" alt="Mike R." onerror="this.innerHTML='👨';">
                     </div>
-                    <div class="faq-answer">
-                        <p>Most customers start seeing results within 30-60 days of implementing our strategies. However, results may vary based on your effort and market conditions.</p>
-                    </div>
+                    <div class="rating">⭐⭐⭐⭐⭐</div>
+                    <p class="review-text">"The step-by-step approach made everything so clear. I finally understand what I was doing wrong before."</p>
+                    <div class="review-author">- Mike R., California</div>
                 </div>
-                <div class="faq-item">
-                    <div class="faq-question">
-                        <h3>What if I'm not satisfied?</h3>
-                        <i class="fas fa-chevron-down"></i>
+                <div class="review-card fade-in">
+                    <div class="reviewer-avatar">
+                        <img src="/images/testimonial-3.jpg" alt="Jennifer L." onerror="this.innerHTML='👩';">
                     </div>
-                    <div class="faq-answer">
-                        <p>We offer a 30-day money-back guarantee. If you're not completely satisfied, simply contact us for a full refund.</p>
-                    </div>
+                    <div class="rating">⭐⭐⭐⭐⭐</div>
+                    <p class="review-text">"Best investment I've made in my online business. The templates alone are worth 10x the price."</p>
+                    <div class="review-author">- Jennifer L., Texas</div>
                 </div>
             </div>
         </div>
     </section>
-
-    <!-- CTA Section -->
-    <section class="cta-section">
+    <section id="faq" class="section" style="background-color: var(--gray-50);">
         <div class="container">
-            <div class="cta-content">
-                <h2>Ready to Transform Your ClickBank Business?</h2>
-                <p>Join thousands of successful marketers who have already changed their lives with our proven blueprint.</p>
-                <a href="#pricing" class="btn btn-primary btn-lg">
-                    <i class="fas fa-rocket"></i>
-                    Get Started Now - $97
-                </a>
-                <p class="cta-guarantee">
-                    <i class="fas fa-shield-alt"></i>
-                    30-Day Money Back Guarantee • Instant Access
-                </p>
+            <div class="section-header">
+                <h2 class="section-title">Frequently Asked Questions</h2>
+                <p class="section-subtitle">Everything you need to know about our ClickBank Marketing Blueprint</p>
+            </div>
+            <div class="faq-container">
+                <div class="faq-item fade-in">
+                    <button class="faq-question" onclick="toggleFAQ(this)"><span>Is this suitable for beginners?</span><span class="faq-icon">▼</span></button>
+                    <div class="faq-answer"><p>Absolutely! Our blueprint is designed for all skill levels. We start with the basics and gradually move to advanced strategies, ensuring everyone can follow along and succeed.</p></div>
+                </div>
+                <div class="faq-item fade-in">
+                    <button class="faq-question" onclick="toggleFAQ(this)"><span>How long does it take to see results?</span><span class="faq-icon">▼</span></button>
+                    <div class="faq-answer"><p>Most students start seeing their first sales within 30-60 days of implementing our strategies. However, results vary based on your effort and market conditions.</p></div>
+                </div>
+                <div class="faq-item fade-in">
+                    <button class="faq-question" onclick="toggleFAQ(this)"><span>What if I'm not satisfied?</span><span class="faq-icon">▼</span></button>
+                    <div class="faq-answer"><p>We offer a 30-day money-back guarantee. If you're not completely satisfied with the blueprint, simply contact us for a full refund, no questions asked.</p></div>
+                </div>
+                <div class="faq-item fade-in">
+                    <button class="faq-question" onclick="toggleFAQ(this)"><span>Do I need any special tools or software?</span><span class="faq-icon">▼</span></button>
+                    <div class="faq-answer"><p>No expensive tools required! We focus on free and low-cost methods that anyone can use. We'll recommend some optional tools that can enhance your results.</p></div>
+                </div>
+                <div class="faq-item fade-in">
+                    <button class="faq-question" onclick="toggleFAQ(this)"><span>Is there ongoing support?</span><span class="faq-icon">▼</span></button>
+                    <div class="faq-answer"><p>Yes! You'll get access to our private community where you can ask questions, share experiences, and get support from both our team and fellow marketers.</p></div>
+                </div>
             </div>
         </div>
     </section>
-
-    <!-- Footer -->
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
-                <div class="footer-section">
-                    <h3>🎯 ClickBank Blueprint</h3>
-                    <p>Transform your ClickBank earnings with proven strategies and actionable blueprints.</p>
-                </div>
-                <div class="footer-section">
-                    <h4>Quick Links</h4>
-                    <ul>
-                        <li><a href="#features">Features</a></li>
-                        <li><a href="#pricing">Pricing</a></li>
-                        <li><a href="#testimonials">Reviews</a></li>
-                        <li><a href="#faq">FAQ</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h4>Support</h4>
-                    <ul>
-                        <li><a href="#contact">Contact Us</a></li>
-                        <li><a href="#faq">Help Center</a></li>
-                        <li><a href="#refund">Refund Policy</a></li>
-                    </ul>
+                <h3>Ready to Transform Your ClickBank Success?</h3>
+                <p>Join thousands of successful marketers and start your journey today.</p>
+                <div class="hero-cta">
+                    <button class="btn btn-primary btn-lg" onclick="handlePurchase('footer_cta')">Get Started Now</button>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2024 ClickBank Blueprint. All rights reserved.</p>
+                <p>&copy; 2024 ClickBank Marketing Secrets. All rights reserved.</p>
+                <p><a href="#" style="color: var(--gray-400);">Privacy Policy</a> | <a href="#" style="color: var(--gray-400);">Terms of Service</a> | <a href="#" style="color: var(--gray-400);">Contact Us</a></p>
             </div>
         </div>
     </footer>
-
-    <!-- Exit Intent Popup -->
-    <div id="exit-popup" class="popup">
+    <button class="scroll-up" id="scroll-up" onclick="scrollToTop()">↑</button>
+    <div class="exit-popup" id="exit-popup">
         <div class="popup-content">
-            <button class="popup-close" id="popup-close">&times;</button>
+            <button class="popup-close" onclick="closePopup()">×</button>
             <h3>Wait! Don't Miss Out</h3>
-            <p>Get 50% off your ClickBank Blueprint today!</p>
-            <a href="#pricing" class="btn btn-primary">Claim Discount</a>
+            <p>Get your FREE ClickBank Quick-Start Checklist and exclusive 20% discount code before you go!</p>
+            <form class="popup-form" onsubmit="handleSubscribe(event, 'exit_popup')">
+                <input type="email" placeholder="Enter your email address" required>
+                <button type="submit" class="btn btn-primary">Get My Free Checklist</button>
+            </form>
+            <p style="font-size: var(--font-size-sm); color: var(--text-muted);">No spam, unsubscribe anytime. 100% free.</p>
         </div>
     </div>
-
-    <!-- Scroll to Top Button -->
-    <button id="scroll-top" class="scroll-top">
-        <i class="fas fa-arrow-up"></i>
-    </button>
-
-    <!-- JavaScript -->
     <script src="/js/main.js"></script>
 </body>
 </html> 
