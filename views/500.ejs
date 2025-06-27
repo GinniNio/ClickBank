@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Error | ClickBank Marketing Secret</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/main.css">
+    <style>
+        .error-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--warning-color) 0%, #f97316 100%);
+            color: var(--white);
+            padding: var(--space-xl);
+        }
+        .error-content {
+            max-width: 600px;
+            text-align: center;
+        }
+        .error-icon {
+            font-size: 5rem;
+            margin-bottom: var(--space-xl);
+            opacity: 0.9;
+        }
+        .error-code {
+            font-size: var(--font-size-6xl);
+            font-weight: 900;
+            margin-bottom: var(--space-md);
+        }
+        .error-title {
+            font-size: var(--font-size-3xl);
+            font-weight: 700;
+            margin-bottom: var(--space-lg);
+        }
+        .error-description {
+            font-size: var(--font-size-lg);
+            margin-bottom: var(--space-2xl);
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+        .error-btn {
+            background-color: var(--white);
+            color: var(--warning-color);
+            border-color: var(--white);
+        }
+        .error-btn:hover {
+            background-color: var(--gray-100);
+            border-color: var(--gray-100);
+        }
+    </style>
+</head>
+<body>
+    <div class="error-page">
+        <div class="error-content">
+            <div class="error-icon">💥</div>
+            <h1 class="error-code">500</h1>
+            <h2 class="error-title">Server error</h2>
+            <p class="error-description">
+                Sorry, something went wrong on our server. We're working to fix the issue. Please try again in a few moments.
+            </p>
+            <a href="/" class="btn btn-lg error-btn">
+                Go back home
+            </a>
+        </div>
+    </div>
+</body>
+</html> 

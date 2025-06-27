@@ -4,35 +4,12 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Next.js
-.next/
-out/
-build/
-dist/
-
 # Environment variables
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
-
-# Vercel
-.vercel
-
-# TypeScript
-*.tsbuildinfo
-next-env.d.ts
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
 
 # Logs
 logs
@@ -46,9 +23,28 @@ pids
 
 # Coverage directory used by tools like istanbul
 coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# Grunt intermediate storage
+.grunt
+
+# Bower dependency directory
+bower_components
+
+# node-waf configuration
+.lock-wscript
+
+# Compiled binary addons
+build/Release
 
 # Dependency directories
 jspm_packages/
+
+# TypeScript cache
+*.tsbuildinfo
 
 # Optional npm cache directory
 .npm
@@ -71,13 +67,58 @@ jspm_packages/
 # Yarn Integrity file
 .yarn-integrity
 
-# parcel-bundler cache (https://parceljs.org/)
+# parcel-bundler cache
 .cache
 .parcel-cache
 
-# Stores VSCode versions used for testing VSCode extensions
-.vscode-test
+# Next.js build output
+.next
+
+# Nuxt.js build / generate output
+.nuxt
+dist
+
+# Gatsby files
+.cache/
+public
+
+# Storybook build outputs
+.out
+.storybook-out
 
 # Temporary folders
 tmp/
-temp/ 
+temp/
+
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# PM2 ecosystem file
+ecosystem.config.js
+
+# Deployment files
+deploy.sh
+docker-compose.yml
+Dockerfile
+
+# SSL certificates
+*.pem
+*.key
+*.crt
+
+# Database files
+*.sqlite
+*.db 
