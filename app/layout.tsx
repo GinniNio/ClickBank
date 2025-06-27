@@ -109,10 +109,8 @@ export default function RootLayout({
       </head>
       <body className={`${inter.variable} ${poppins.variable} font-sans antialiased`}>
         <ThemeProvider
-          attribute="class"
           defaultTheme="light"
-          enableSystem
-          disableTransitionOnChange
+          storageKey="ui-theme"
         >
           {children}
           <Toaster

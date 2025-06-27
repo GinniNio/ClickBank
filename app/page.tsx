@@ -3,30 +3,42 @@
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
 import Script from 'next/script';
+import Image from 'next/image';
 
 export default function ClickBankMarketingPage() {
   const [exitIntentShown, setExitIntentShown] = useState(false);
+  const [showExitPopup, setShowExitPopup] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(24 * 60 * 60); // 24 hours in seconds
 
   useEffect(() => {
+    // Countdown Timer
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
     // FAQ Toggle Function
     const toggleFAQ = (element: HTMLElement) => {
       const answer = element.nextElementSibling as HTMLElement;
-      const icon = element.querySelector('span:last-child') as HTMLElement;
+      const icon = element.querySelector('.faq-icon') as HTMLElement;
       
-      const isOpen = answer.style.maxHeight && answer.style.maxHeight !== '0px';
-      
-      // Close all FAQs first
-      document.querySelectorAll('.faq-answer').forEach((a) => {
-        (a as HTMLElement).style.maxHeight = '0';
-        const prevIcon = a.previousElementSibling?.querySelector('span:last-child') as HTMLElement;
-        if (prevIcon) prevIcon.textContent = '+';
+      // Close all other FAQs
+      document.querySelectorAll('.faq-answer').forEach((faq) => {
+        if (faq !== answer) {
+          faq.classList.remove('active');
+          const prevElement = faq.previousElementSibling as HTMLElement;
+          if (prevElement) prevElement.classList.remove('active');
+        }
       });
       
-      // Open current FAQ if it wasn't already open
-      if (!isOpen) {
-        answer.style.maxHeight = answer.scrollHeight + 'px';
-        icon.textContent = '−';
-      }
+      // Toggle current FAQ
+      answer.classList.toggle('active');
+      element.classList.toggle('active');
     };
 
     // Add click handlers to FAQ questions
@@ -36,9 +48,9 @@ export default function ClickBankMarketingPage() {
 
     // Smooth scroll for anchor links
     document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-      anchor.addEventListener('click', function (e) {
+      anchor.addEventListener('click', (e) => {
         e.preventDefault();
-        const href = this.getAttribute('href');
+        const href = (e.currentTarget as HTMLAnchorElement).getAttribute('href');
         if (href) {
           const target = document.querySelector(href);
           if (target) {
@@ -51,42 +63,65 @@ export default function ClickBankMarketingPage() {
       });
     });
 
-    // Exit intent popup
+    // Header scroll effect
+    const handleScroll = () => {
+      const header = document.getElementById('header');
+      const scrollUp = document.getElementById('scrollUp');
+      
+      if (window.scrollY > 100) {
+        header?.classList.add('scrolled');
+        if (scrollUp) scrollUp.style.display = 'flex';
+      } else {
+        header?.classList.remove('scrolled');
+        if (scrollUp) scrollUp.style.display = 'none';
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    // Exit intent detection
     const handleMouseLeave = (e: MouseEvent) => {
       if (e.clientY <= 0 && !exitIntentShown && window.scrollY > 1000) {
         setExitIntentShown(true);
-        if (confirm('Wait! Get 20% off with code SAVE20 - Continue to checkout?')) {
-          window.location.href = 'https://1.clickbankmkt.pay.clickbank.net/?cbfid=your_affiliate_id&cbpid=your_product_id&cbdiscount=SAVE20';
-        }
+        setShowExitPopup(true);
       }
     };
 
     document.addEventListener('mouseleave', handleMouseLeave);
 
-    // A/B test setup
-    const testVariant = Math.random() < 0.5 ? 'A' : 'B';
-    if (testVariant === 'B') {
-      const heroTitle = document.querySelector('.hero h1');
-      if (heroTitle) {
-        heroTitle.textContent = 'Generate $1,000+ Monthly Income with ClickBank—Step by Step Guide';
-      }
-    }
+    // Intersection Observer for animations
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
 
-    // Track A/B test
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('event', 'ab_test', {
-        'event_category': 'Experiment',
-        'event_label': 'Headline Test',
-        'custom_parameter': testVariant
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
       });
-    }
+    }, observerOptions);
+
+    document.querySelectorAll('.fade-in').forEach(el => {
+      observer.observe(el);
+    });
 
     return () => {
+      clearInterval(timer);
       document.removeEventListener('mouseleave', handleMouseLeave);
+      window.removeEventListener('scroll', handleScroll);
     };
   }, [exitIntentShown]);
 
-  const trackConversion = (source: string) => {
+  const formatTime = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const trackPurchase = (source: string) => {
     // Analytics tracking
     if (typeof window !== 'undefined' && (window as any).gtag) {
       (window as any).gtag('event', 'purchase_click', {
@@ -104,27 +139,49 @@ export default function ClickBankMarketingPage() {
         content_name: 'ClickBank Marketing Blueprint'
       });
     }
+
+    // Redirect to checkout
+    window.location.href = '/checkout';
+  };
+
+  const closeExitPopup = () => {
+    setShowExitPopup(false);
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
+
+  const handleExitFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const form = e.target as HTMLFormElement;
+    const email = form.querySelector('input[type="email"]') as HTMLInputElement;
+    
+    // Here you would send the email to your server
+    alert('Thank you! Check your email for your free checklist and discount code.');
+    closeExitPopup();
   };
 
   return (
     <>
       <Head>
-        <title>ClickBank Marketing Blueprint | From Zero to $1k in 30 Days</title>
-        <meta name="description" content="Proven 7-module video course that shows beginners how to earn their first $1,000 ClickBank commission in 30 days—backed by a 30-day money-back guarantee." />
+        <title>The Ultimate ClickBank Marketing Blueprint: Unleash Your Potential | ClickBank Marketing Secret</title>
+        <meta name="description" content="Transform your ClickBank earnings with our proven step-by-step system. Learn insider strategies from successful marketers and dominate profitable niches today." />
+        <meta name="keywords" content="ClickBank marketing, affiliate marketing, digital products, online income, marketing blueprint, niche mastery" />
         <link rel="canonical" href="https://clickbankmarketingsecret.club/" />
         
         {/* Open Graph */}
-        <meta property="og:title" content="Earn Your First $1,000 ClickBank Commission in 30 Days" />
-        <meta property="og:description" content="Step-by-step blueprint used by 1,267+ students. No paid ads required." />
-        <meta property="og:image" content="https://clickbankmarketingsecret.club/images/og-income-proof.jpg" />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
+        <meta property="og:title" content="The Ultimate ClickBank Marketing Blueprint" />
+        <meta property="og:description" content="Discover the proven system that transforms struggling affiliates into ClickBank success stories" />
+        <meta property="og:image" content="https://clickbankmarketingsecret.club/images/og-image.jpg" />
         <meta property="og:url" content="https://clickbankmarketingsecret.club" />
         <meta property="og:type" content="website" />
         
         {/* Performance Optimizations */}
-        <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" as="style" />
-        <link rel="preload" href="./images/hero-income-proof.webp" as="image" />
+        <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </Head>
 
@@ -136,24 +193,21 @@ export default function ClickBankMarketingPage() {
           __html: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "Product",
-            "name": "ClickBank Marketing Blueprint",
-            "description": "Complete 7-module video course for ClickBank affiliate marketing success",
-            "brand": {
-              "@type": "Brand",
-              "name": "ClickBank Marketing Secret"
-            },
+            "name": "Ultimate ClickBank Marketing Blueprint",
+            "description": "Complete guide to ClickBank affiliate marketing success with Niche Mastery system",
+            "brand": "ClickBank Marketing Secret",
             "offers": {
               "@type": "Offer",
               "price": "49",
               "priceCurrency": "USD",
               "availability": "https://schema.org/InStock",
               "validThrough": "2025-12-31",
-              "url": "https://clickbankmarketingsecret.club/#order"
+              "url": "https://clickbankmarketingsecret.club/#purchase"
             },
             "aggregateRating": {
               "@type": "AggregateRating",
-              "ratingValue": "4.8",
-              "reviewCount": "1267",
+              "ratingValue": "4.9",
+              "reviewCount": "847",
               "bestRating": "5",
               "worstRating": "1"
             }
@@ -161,417 +215,443 @@ export default function ClickBankMarketingPage() {
         }}
       />
 
-      {/* FAQ Schema */}
-      <Script
-        id="faq-schema"
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "FAQPage",
-            "mainEntity": [
-              {
-                "@type": "Question",
-                "name": "How long until I see results?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Most students land their first ClickBank sale within 7-14 days; typical earnings range from $50-$300 in the first month. Results vary based on effort and implementation."
-                }
-              },
-              {
-                "@type": "Question", 
-                "name": "Do I need experience with affiliate marketing?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "No experience required. Our blueprint starts from absolute beginner level with step-by-step video training."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "Is there a money-back guarantee?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Yes, you get a full 30-day money-back guarantee. If you're not satisfied for any reason, we'll refund every cent."
-                }
-              }
-            ]
-          })
-        }}
-      />
-
-      {/* Skip to Content Link */}
-      <a className="skip-link" href="#main">Skip to content</a>
-
-      {/* Compliance Disclosure Bar */}
-      <div className="compliance-bar" role="region" aria-label="Affiliate disclosure">
-        <div className="container">
-          <p><strong>AFFILIATE DISCLOSURE:</strong> As ClickBank affiliates, we earn commissions on qualifying purchases. This helps us provide free content to our audience.</p>
-        </div>
+      {/* Loading Spinner */}
+      <div id="loader-wrapper">
+        <div className="loader"></div>
       </div>
 
-      {/* Navigation */}
-      <nav style={{background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(20px)', position: 'sticky', top: '60px', zIndex: 99, padding: '12px 0'}}>
-        <div className="container" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-          <div style={{fontWeight: 700, color: 'var(--primary)'}}>ClickBank Marketing Secret</div>
-          <div style={{display: 'flex', gap: '24px'}}>
-            <a href="#about" style={{textDecoration: 'none', color: 'var(--text)'}}>About</a>
-            <a href="#how-it-works" style={{textDecoration: 'none', color: 'var(--text)'}}>How It Works</a>
-            <a href="#testimonials" style={{textDecoration: 'none', color: 'var(--text)'}}>Reviews</a>
-            <a href="#faq" style={{textDecoration: 'none', color: 'var(--text)'}}>FAQ</a>
-          </div>
-        </div>
-      </nav>
+      {/* Header */}
+      <header className="header" id="header">
+        <nav className="nav container">
+          <a href="#" className="logo">
+            <i className="fas fa-chart-line"></i> ClickBank Marketing Secret
+          </a>
+          <ul className="nav-links" id="navLinks">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#about">About ClickBank</a></li>
+            <li><a href="#features">What You Get</a></li>
+            <li><a href="#reviews">Reviews</a></li>
+            <li><a href="#faq">FAQs</a></li>
+          </ul>
+          <button className="mobile-menu-toggle" id="mobileMenuToggle">
+            <i className="fas fa-bars"></i>
+          </button>
+        </nav>
+      </header>
 
-      {/* Main Content */}
-      <main id="main">
+      <div id="page" className="page">
         {/* Hero Section */}
-        <section className="hero">
+        <section id="home" className="hero">
           <div className="container">
-            <h1>Earn Your First $1,000 ClickBank Commission in 30 Days—Without Paid Ads</h1>
-            
-            <p className="hero-subtitle">A step-by-step video blueprint used by 1,267 students, all backed by a 30-day "Results or Free" guarantee.*</p>
-            
-            {/* Social Proof with Real Results */}
-            <div className="social-proof">
-              <img 
-                src="./images/income-proof-screenshot.webp" 
-                alt="ClickBank commission screenshot showing $3,247 earned in 30 days" 
-                width={400} 
-                height={200} 
-                style={{borderRadius: '8px', marginBottom: '12px'}}
-              />
-              <p><strong>Recent Student Result:</strong> Sarah M. earned $3,247 in her second month</p>
-              <p style={{fontSize: '0.9rem', opacity: 0.8}}>*Results not typical. Individual results vary.</p>
-            </div>
-            
-            {/* Primary Call-to-Action */}
-            <a 
-              href="#order" 
-              className="cta-primary" 
-              onClick={() => trackConversion('hero-cta')}
-            >
-              Get Instant Access – $49
-            </a>
-            
-            {/* Trust Indicators */}
-            <div className="trust-badges">
-              <div className="trust-badge">
-                <span>✓</span> 30-Day Money-Back Guarantee
-              </div>
-              <div className="trust-badge">
-                <span>✓</span> Instant Digital Access
-              </div>
-              <div className="trust-badge">
-                <span>✓</span> 1,267+ Successful Students
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Stats Section with Compliance */}
-        <section style={{padding: '60px 0', background: 'var(--bg-light)'}}>
-          <div className="container">
-            <h2 style={{fontSize: '2.5rem', textAlign: 'center', marginBottom: '40px', color: 'var(--text)'}}>
-              Why Students Choose Our Blueprint
-            </h2>
-            
-            <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '40px', margin: '40px 0', textAlign: 'center'}}>
-              <div>
-                <div style={{fontSize: '3rem', fontWeight: 900, color: 'var(--primary)', marginBottom: '8px'}}>$2.4M+<sup>†</sup></div>
-                <div style={{color: 'var(--text-light)', fontWeight: 600}}>Generated by Our Students</div>
-              </div>
-              <div>
-                <div style={{fontSize: '3rem', fontWeight: 900, color: 'var(--primary)', marginBottom: '8px'}}>1,267+<sup>†</sup></div>
-                <div style={{color: 'var(--text-light)', fontWeight: 600}}>Successful Students</div>
-              </div>
-              <div>
-                <div style={{fontSize: '3rem', fontWeight: 900, color: 'var(--primary)', marginBottom: '8px'}}>$47K<sup>†</sup></div>
-                <div style={{color: 'var(--text-light)', fontWeight: 600}}>Highest Single Commission</div>
-              </div>
-              <div>
-                <div style={{fontSize: '3rem', fontWeight: 900, color: 'var(--primary)', marginBottom: '8px'}}>2 Years</div>
-                <div style={{color: 'var(--text-light)', fontWeight: 600}}>of Proven Results</div>
-              </div>
-            </div>
-            
-            <p className="footnote" style={{textAlign: 'center'}}>
-              † Figures represent the total gross revenue reported by all Blueprint students as of May 2025. Individual results vary; typical students earn $0–$500 in their first 30 days.
-            </p>
-          </div>
-        </section>
-
-        {/* Why Most Affiliates Fail Section */}
-        <section id="about" style={{padding: '60px 0', background: 'white'}}>
-          <div className="container">
-            <h2 style={{fontSize: '2.5rem', textAlign: 'center', marginBottom: '40px', color: 'var(--text)'}}>
-              Why Most New Affiliates Fail—and How You Won't
-            </h2>
-            
-            <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '40px', marginTop: '40px'}}>
-              <div style={{background: 'var(--bg-light)', padding: '30px', borderRadius: '16px', borderTop: '4px solid var(--accent)'}}>
-                <h3 style={{color: 'var(--accent)', marginBottom: '16px'}}>❌ They Pick Saturated Niches</h3>
-                <p style={{marginBottom: '16px'}}>95% of beginners go after the same "make money" and "weight loss" offers everyone else promotes.</p>
-                <p><strong>✅ You'll Get:</strong> Our secret niche-picker spreadsheet scoring 500+ ClickBank offers by EPC, competition, and refund rates.</p>
+            <div className="hero-content fade-in">
+              <h1>The Ultimate ClickBank Marketing Blueprint:<br />Unleash Your Potential</h1>
+              <p className="hero-subtitle">
+                Are you tired of struggling to make sales on ClickBank? Are you looking for a proven, 
+                step-by-step system to take your earnings to the next level? Look no further than our 
+                Ultimate ClickBank Marketing Blueprint.
+              </p>
+              
+              <div className="countdown-timer">
+                ⚡ Limited Time Offer: Save 50% - Act Fast! ⚡
+                <div className="timer-display" id="countdown">{formatTime(timeLeft)}</div>
               </div>
               
-              <div style={{background: 'var(--bg-light)', padding: '30px', borderRadius: '16px', borderTop: '4px solid var(--accent)'}}>
-                <h3 style={{color: 'var(--accent)', marginBottom: '16px'}}>❌ They Use Direct Links</h3>
-                <p style={{marginBottom: '16px'}}>Sending cold traffic directly to ClickBank sales pages converts at less than 1%.</p>
-                <p><strong>✅ You'll Get:</strong> 3 proven presell funnels for TikTok, YouTube, and email that convert at 5-8%.</p>
-              </div>
+              <a href="#purchase" className="cta-button" onClick={() => trackPurchase('hero_cta')}>
+                <i className="fas fa-rocket"></i> Buy Now - $49
+              </a>
               
-              <div style={{background: 'var(--bg-light)', padding: '30px', borderRadius: '16px', borderTop: '4px solid var(--accent)'}}>
-                <h3 style={{color: 'var(--accent)', marginBottom: '16px'}}>❌ They Rely on Paid Ads Only</h3>
-                <p style={{marginBottom: '16px'}}>Ad costs have tripled since 2020. Most beginners burn through their budget in days.</p>
-                <p><strong>✅ You'll Get:</strong> Free traffic methods generating 10,000+ visitors monthly without spending a dime on ads.</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* How It Works Section */}
-        <section id="how-it-works" style={{padding: '80px 0', background: 'var(--bg-light)'}}>
-          <div className="container">
-            <h2 style={{fontSize: '2.5rem', textAlign: 'center', marginBottom: '60px', color: 'var(--text)'}}>
-              How It Works
-            </h2>
-            
-            <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '40px', maxWidth: '1000px', margin: '0 auto'}}>
-              <div style={{textAlign: 'center'}}>
-                <div style={{width: '80px', height: '80px', background: 'linear-gradient(135deg, var(--primary), var(--secondary))', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '2rem', margin: '0 auto 24px'}}>1</div>
-                <h3 style={{fontSize: '1.5rem', marginBottom: '16px', color: 'var(--text)'}}>Choose Your Niche</h3>
-                <p style={{color: 'var(--text-light)', lineHeight: 1.6}}>Use our research tools to find profitable ClickBank products in high-demand, low-competition niches.</p>
-              </div>
-              
-              <div style={{textAlign: 'center'}}>
-                <div style={{width: '80px', height: '80px', background: 'linear-gradient(135deg, var(--primary), var(--secondary))', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '2rem', margin: '0 auto 24px'}}>2</div>
-                <h3 style={{fontSize: '1.5rem', marginBottom: '16px', color: 'var(--text)'}}>Create Content</h3>
-                <p style={{color: 'var(--text-light)', lineHeight: 1.6}}>Follow our proven content templates to create videos, posts, and landing pages that presell effectively.</p>
-              </div>
-              
-              <div style={{textAlign: 'center'}}>
-                <div style={{width: '80px', height: '80px', background: 'linear-gradient(135deg, var(--primary), var(--secondary))', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '2rem', margin: '0 auto 24px'}}>3</div>
-                <h3 style={{fontSize: '1.5rem', marginBottom: '16px', color: 'var(--text)'}}>Drive Traffic</h3>
-                <p style={{color: 'var(--text-light)', lineHeight: 1.6}}>Use our free traffic methods to get thousands of targeted visitors without spending on ads.</p>
-              </div>
-              
-              <div style={{textAlign: 'center'}}>
-                <div style={{width: '80px', height: '80px', background: 'linear-gradient(135deg, var(--primary), var(--secondary))', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '2rem', margin: '0 auto 24px'}}>4</div>
-                <h3 style={{fontSize: '1.5rem', marginBottom: '16px', color: 'var(--text)'}}>Earn Commissions</h3>
-                <p style={{color: 'var(--text-light)', lineHeight: 1.6}}>Watch your ClickBank account grow as our proven system generates consistent commissions.</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Success Stories Section */}
-        <section id="testimonials" style={{padding: '80px 0', background: 'white'}}>
-          <div className="container">
-            <h2 style={{fontSize: '2.5rem', textAlign: 'center', marginBottom: '60px', color: 'var(--text)'}}>
-              Student Success Stories
-            </h2>
-            
-            <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '40px'}}>
-              {/* Testimonial 1 with Proof */}
-              <div style={{background: 'var(--bg-light)', padding: '32px', borderRadius: '16px', borderLeft: '4px solid var(--success)'}}>
-                <div style={{display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px'}}>
-                  <img src="./images/testimonial-sarah.webp" alt="Sarah M." width={60} height={60} style={{borderRadius: '50%', objectFit: 'cover'}} />
-                  <div>
-                    <h4 style={{margin: 0, color: 'var(--text)'}}>Sarah M.</h4>
-                    <p style={{margin: 0, color: 'var(--text-light)', fontSize: '0.9rem'}}>Marketing Student</p>
-                    <p style={{margin: 0, color: 'var(--text-light)', fontSize: '0.8rem'}}>Name & result on file</p>
-                  </div>
+              <div className="trust-indicators">
+                <div className="trust-badge">
+                  <i className="fas fa-shield-alt"></i>
+                  30-Day Money-Back Guarantee
                 </div>
-                <p style={{fontStyle: 'italic', marginBottom: '16px', color: 'var(--text)'}}>
-                  "I was skeptical at first, but this blueprint actually works. I made my first $1,000 commission in just 18 days following the exact steps. The niche research tool alone is worth the price!"
+                <div className="trust-badge">
+                  <i className="fas fa-download"></i>
+                  Instant Digital Access
+                </div>
+                <div className="trust-badge">
+                  <i className="fas fa-users"></i>
+                  10,000+ Happy Customers
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* About ClickBank Section */}
+        <section id="about" className="section about-section">
+          <div className="container">
+            <h2 className="section-title fade-in">About ClickBank</h2>
+            <div className="about-grid">
+              <div className="about-content fade-in">
+                <h3>The World's Premier Digital Marketplace</h3>
+                <p>
+                  ClickBank is an online marketplace that connects digital product creators with affiliate 
+                  marketers. As a product creator, you can list your product and allow others to promote it for 
+                  a commission. As an affiliate marketer, you can promote products and earn a commission for each 
+                  sale. ClickBank handles payment processing and tracking, and offers reporting tools to help you 
+                  track your performance.
                 </p>
-                <div style={{color: 'var(--success)', fontWeight: 600}}>✅ $3,247 earned in month 2*</div>
+                <ul className="features-list">
+                  <li><i className="fas fa-check-circle text-primary"></i> Over 6 million products in 200+ categories</li>
+                  <li><i className="fas fa-check-circle text-primary"></i> Commissions up to 75% per sale</li>
+                  <li><i className="fas fa-check-circle text-primary"></i> Global reach in 190+ countries</li>
+                  <li><i className="fas fa-check-circle text-primary"></i> Advanced analytics and tracking tools</li>
+                </ul>
+              </div>
+              <div className="about-visual fade-in">
+                <i className="fas fa-chart-line" style={{fontSize: '5rem', color: 'var(--primary-color)', marginBottom: '1rem', position: 'relative', zIndex: 2}}></i>
+                <h4 style={{position: 'relative', zIndex: 2}}>Start Your Success Journey</h4>
+                <p style={{position: 'relative', zIndex: 2}}>From beginner to expert in 30 days</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Product Pitch Section */}
+        <section className="section product-pitch">
+          <div className="container">
+            <h2 className="section-title" style={{color: 'white'}}>Product Pitch</h2>
+            <div className="product-card fade-in">
+              <h3 style={{fontSize: '2rem', marginBottom: '1.5rem', position: 'relative', zIndex: 2}}>
+                "Niche Mastery" - Your Key to ClickBank Success
+              </h3>
+              <p style={{fontSize: '1.1rem', lineHeight: 1.7, position: 'relative', zIndex: 2}}>
+                Struggling to find profitable niches for your ClickBank affiliate marketing business? 
+                <strong>"Niche Mastery"</strong> has you covered. This ultimate guide reveals the secrets to choosing niches that 
+                truly resonate with your audience and align with your goals on ClickBank. Learn how to conduct 
+                market research, analyze niches, target audiences, and optimize your strategy for maximum 
+                conversion rates and long-term success on the platform. Stop wasting time on ineffective niches and start seeing real, 
+                sustainable results on ClickBank. Get <strong>"Niche Mastery"</strong> now and dominate the platform.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Why You Need This Section */}
+        <section className="section bg-white">
+          <div className="container">
+            <h2 className="section-title fade-in">Why you need this</h2>
+            <div className="section-subtitle fade-in">
+              Transform your ClickBank business with proven strategies that actually work
+            </div>
+            <div className="features-grid">
+              <div className="feature-card fade-in">
+                <div className="feature-icon">
+                  <i className="fas fa-user-secret"></i>
+                </div>
+                <h3>Learn From The Pros</h3>
+                <p>We'll take you behind the scenes of successful ClickBank marketers, so you can learn from the pros and apply their strategies to your own business.</p>
               </div>
               
-              {/* Testimonial 2 with Proof */}
-              <div style={{background: 'var(--bg-light)', padding: '32px', borderRadius: '16px', borderLeft: '4px solid var(--success)'}}>
-                <div style={{display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px'}}>
-                  <img src="./images/testimonial-mike.webp" alt="Mike R." width={60} height={60} style={{borderRadius: '50%', objectFit: 'cover'}} />
-                  <div>
-                    <h4 style={{margin: 0, color: 'var(--text)'}}>Mike R.</h4>
-                    <p style={{margin: 0, color: 'var(--text-light)', fontSize: '0.9rem'}}>Former Construction Worker</p>
-                    <p style={{margin: 0, color: 'var(--text-light)', fontSize: '0.8rem'}}>Video testimonial on file</p>
-                  </div>
+              <div className="feature-card fade-in">
+                <div className="feature-icon">
+                  <i className="fas fa-content"></i>
                 </div>
-                <p style={{fontStyle: 'italic', marginBottom: '16px', color: 'var(--text)'}}>
-                  "I had zero online marketing experience. This course broke everything down step-by-step. The free traffic methods are incredible - I'm getting 500+ visitors daily without spending on ads."
-                </p>
-                <div style={{color: 'var(--success)', fontWeight: 600}}>✅ $1,847 first month*</div>
+                <h3>High-Quality Content Creation</h3>
+                <p>We'll show you how to create high-quality content that delivers real value to your audience, setting you apart from the competition.</p>
               </div>
               
-              {/* Testimonial 3 with Proof */}
-              <div style={{background: 'var(--bg-light)', padding: '32px', borderRadius: '16px', borderLeft: '4px solid var(--success)'}}>
-                <div style={{display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px'}}>
-                  <img src="./images/testimonial-lisa.webp" alt="Lisa K." width={60} height={60} style={{borderRadius: '50%', objectFit: 'cover'}} />
-                  <div>
-                    <h4 style={{margin: 0, color: 'var(--text)'}}>Lisa K.</h4>
-                    <p style={{margin: 0, color: 'var(--text-light)', fontSize: '0.9rem'}}>Stay-at-Home Mom</p>
-                    <p style={{margin: 0, color: 'var(--text-light)', fontSize: '0.8rem'}}>Screenshot verification on file</p>
-                  </div>
+              <div className="feature-card fade-in">
+                <div className="feature-icon">
+                  <i className="fas fa-bullseye"></i>
                 </div>
-                <p style={{fontStyle: 'italic', marginBottom: '16px', color: 'var(--text)'}}>
-                  "Finally, a course that delivers on its promises! I'm now earning more part-time with ClickBank than my previous full-time job. The community support is amazing too."
-                </p>
-                <div style={{color: 'var(--success)', fontWeight: 600}}>✅ $5,123 month 3*</div>
+                <h3>Profitable Niche Selection</h3>
+                <p>You'll learn how to choose profitable niches on ClickBank, with step-by-step guidance that makes the process easy and effective.</p>
+              </div>
+              
+              <div className="feature-card fade-in">
+                <div className="feature-icon">
+                  <i className="fas fa-rocket"></i>
+                </div>
+                <h3>Complete Success System</h3>
+                <p>Our comprehensive guide will give you everything you need to succeed in digital product affiliate marketing on ClickBank. Don't wait - get started today and start seeing real, sustainable results.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* What You Get Section */}
+        <section id="features" className="section features-section">
+          <div className="container">
+            <h2 className="section-title fade-in">What you get</h2>
+            <div className="features-grid">
+              <div className="feature-card fade-in">
+                <div className="feature-icon">
+                  <i className="fas fa-lightbulb"></i>
+                </div>
+                <h3>Exclusive Insights & Strategies</h3>
+                <p>Gain exclusive insights and strategies from successful ClickBank marketers who are generating 6-7 figure incomes.</p>
+              </div>
+              
+              <div className="feature-card fade-in">
+                <div className="feature-icon">
+                  <i className="fas fa-edit"></i>
+                </div>
+                <h3>High-Converting Content Methods</h3>
+                <p>Learn how to create high-quality content that sets you apart from the competition and drives sales on ClickBank.</p>
+              </div>
+              
+              <div className="feature-card fade-in">
+                <div className="feature-icon">
+                  <i className="fas fa-search"></i>
+                </div>
+                <h3>Niche Research Mastery</h3>
+                <p>Get step-by-step guidance on choosing profitable niches with high demand and low competition.</p>
+              </div>
+              
+              <div className="feature-card fade-in">
+                <div className="feature-icon">
+                  <i className="fas fa-key"></i>
+                </div>
+                <h3>Digital Marketing Secrets</h3>
+                <p>Unlock the secrets to digital product affiliate marketing success on ClickBank with proven methodologies.</p>
+              </div>
+              
+              <div className="feature-card fade-in">
+                <div className="feature-icon">
+                  <i className="fas fa-trophy"></i>
+                </div>
+                <h3>Success Community Access</h3>
+                <p>Join the ranks of successful ClickBank marketers and start seeing real, sustainable results today.</p>
+              </div>
+              
+              <div className="feature-card fade-in">
+                <div className="feature-icon">
+                  <i className="fas fa-tools"></i>
+                </div>
+                <h3>Done-For-You Resources</h3>
+                <p>Get access to templates, swipe files, and tools that have generated millions in affiliate commissions.</p>
               </div>
             </div>
             
-            <p className="footnote" style={{textAlign: 'center', marginTop: '40px'}}>
-              *Individual results shown are not typical. Results vary based on effort, skill, and market conditions.
-            </p>
+            <div className="text-center mt-3">
+              <a href="#purchase" className="cta-button" onClick={() => trackPurchase('features_cta')}>
+                <i className="fas fa-shopping-cart"></i> Buy Now - $49
+              </a>
+            </div>
           </div>
         </section>
 
         {/* Pricing Section */}
-        <section id="order" style={{padding: '80px 0', background: 'linear-gradient(135deg, var(--primary), var(--secondary))', color: 'white', textAlign: 'center'}}>
+        <section id="purchase" className="section pricing-section">
           <div className="container">
-            <h2 style={{fontSize: '2.5rem', marginBottom: '24px'}}>
-              Ready to Start Earning?
-            </h2>
-            <p style={{fontSize: '1.2rem', marginBottom: '40px', opacity: 0.95}}>
-              Join 1,267+ students who are already earning with our proven system
-            </p>
-            
-            {/* Pricing Card */}
-            <div style={{background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(20px)', borderRadius: '20px', padding: '40px', maxWidth: '500px', margin: '0 auto', border: '1px solid rgba(255,255,255,0.2)'}}>
-              <h3 style={{fontSize: '1.8rem', marginBottom: '20px'}}>ClickBank Marketing Blueprint</h3>
+            <h2 className="section-title fade-in">Ready to dominate ClickBank affiliate marketing and start seeing real results?</h2>
+            <div className="pricing-card fade-in">
+              <h3 style={{fontSize: '2rem', marginBottom: '1rem', position: 'relative', zIndex: 2}}>
+                Our comprehensive guide has everything you need:
+              </h3>
+              <ul style={{textAlign: 'left', margin: '2rem 0', position: 'relative', zIndex: 2, listStyle: 'none'}}>
+                <li style={{marginBottom: '1rem'}}><i className="fas fa-check-circle" style={{color: '#51cf66', marginRight: '0.5rem'}}></i> Exclusive insights and strategies from successful ClickBank marketers</li>
+                <li style={{marginBottom: '1rem'}}><i className="fas fa-check-circle" style={{color: '#51cf66', marginRight: '0.5rem'}}></i> Step-by-step guidance on choosing profitable niches with high demand and low competition</li>
+                <li style={{marginBottom: '1rem'}}><i className="fas fa-check-circle" style={{color: '#51cf66', marginRight: '0.5rem'}}></i> Expert tips on creating high-quality content that drives sales and sets you apart from the competition</li>
+              </ul>
               
-              {/* Price */}
-              <div style={{margin: '24px 0'}}>
-                <span style={{fontSize: '1.2rem', opacity: 0.8, textDecoration: 'line-through'}}>$99</span>
-                <span style={{fontSize: '4rem', fontWeight: 900, margin: '0 16px'}}>$49</span>
-                <span style={{fontSize: '1rem', opacity: 0.8}}>Limited Time</span>
+              <div style={{position: 'relative', zIndex: 2}}>
+                <p style={{fontSize: '1.2rem', marginBottom: '1rem'}}>And the best part? For a limited time, you can get instant access to our guide for just:</p>
+                <div className="price">$49</div>
+                <div className="price-note">Limited Time: Save $50 (Regular Price $99)</div>
               </div>
               
-              {/* What's Included */}
-              <div style={{textAlign: 'left', margin: '32px 0'}}>
-                <div style={{marginBottom: '12px'}}>✅ 7 HD Video Modules (4+ hours)</div>
-                <div style={{marginBottom: '12px'}}>✅ Niche Research Database (500+ products)</div>
-                <div style={{marginBottom: '12px'}}>✅ Copy-Paste Content Templates</div>
-                <div style={{marginBottom: '12px'}}>✅ Free Traffic Method Blueprints</div>
-                <div style={{marginBottom: '12px'}}>✅ Private Discord Community</div>
-                <div style={{marginBottom: '12px'}}>✅ 30-Day Money-Back Guarantee</div>
-              </div>
+              <p style={{marginBottom: '2rem', position: 'relative', zIndex: 2}}>
+                Don't waste any more time or money on ineffective strategies. Invest in your success today and start dominating ClickBank. 
+                Click the "Buy Now" button below and get instant access to our guide for just $49.
+              </p>
               
-              {/* CTA Button with Real ClickBank Link */}
-              <a 
-                href="https://1.clickbankmkt.pay.clickbank.net/?cbfid=your_affiliate_id&cbpid=your_product_id" 
-                className="cta-primary" 
-                onClick={() => trackConversion('main-cta')} 
-                style={{display: 'inline-block', margin: '24px 0', background: 'var(--accent)', transform: 'scale(1.1)'}}
-              >
-                Get Instant Access – $49
+              <a href="#" className="cta-button" onClick={() => trackPurchase('main_cta')} style={{fontSize: '1.2rem', padding: '1.5rem 3rem', position: 'relative', zIndex: 2}}>
+                <i className="fas fa-shopping-cart"></i> Buy Now - $49
               </a>
               
-              {/* Guarantees */}
-              <div style={{fontSize: '0.9rem', opacity: 0.9, marginTop: '20px'}}>
-                <div>🔒 Secure Checkout • 💳 All Payment Methods</div>
-                <div>📱 Works on All Devices • ⚡ Instant Access</div>
+              <div className="guarantee-badges">
+                <div className="guarantee-badge">
+                  <i className="fas fa-shield-alt"></i>
+                  30-Day Money-Back Guarantee
+                </div>
+                <div className="guarantee-badge">
+                  <i className="fas fa-download"></i>
+                  Instant Digital Download
+                </div>
+                <div className="guarantee-badge">
+                  <i className="fas fa-lock"></i>
+                  Secure Checkout
+                </div>
               </div>
             </div>
           </div>
         </section>
 
         {/* FAQ Section */}
-        <section id="faq" style={{padding: '80px 0', background: 'var(--bg-light)'}}>
+        <section id="faq" className="section faq-section">
           <div className="container">
-            <h2 style={{fontSize: '2.5rem', textAlign: 'center', marginBottom: '60px', color: 'var(--text)'}}>
-              Frequently Asked Questions
-            </h2>
-            
-            <div style={{maxWidth: '800px', margin: '0 auto'}}>
-              {/* FAQ Items */}
-              <div className="faq-item" style={{background: 'white', marginBottom: '16px', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 6px rgba(0,0,0,0.1)'}}>
-                <h3 className="faq-question" style={{padding: '24px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f3f4f6', margin: 0, fontSize: '1.1rem'}}>
-                  <span style={{fontWeight: 600, color: 'var(--text)'}}>How long until I see results?</span>
-                  <span style={{color: 'var(--primary)', fontSize: '1.2rem'}}>+</span>
-                </h3>
-                <div className="faq-answer" style={{maxHeight: 0, overflow: 'hidden', transition: 'all 0.3s ease'}}>
-                  <div style={{padding: '24px', color: 'var(--text-light)'}}>
-                    Most students land their first ClickBank sale within 7-14 days; typical earnings range from $50-$300 in the first month. Results vary based on effort and implementation.*
-                  </div>
+            <h2 className="section-title fade-in">Frequently Asked Questions</h2>
+            <div className="faq-container">
+              <div className="faq-item fade-in">
+                <div className="faq-question">
+                  <span>What is this guide about?</span>
+                  <i className="fas fa-chevron-down faq-icon"></i>
+                </div>
+                <div className="faq-answer">
+                  <p>This comprehensive guide shows you how to create a systematic approach to ClickBank affiliate marketing, generate high-quality content, and learn how to market products effectively on ClickBank to maximize your earnings and build a sustainable online business.</p>
                 </div>
               </div>
               
-              <div className="faq-item" style={{background: 'white', marginBottom: '16px', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 6px rgba(0,0,0,0.1)'}}>
-                <h3 className="faq-question" style={{padding: '24px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f3f4f6', margin: 0, fontSize: '1.1rem'}}>
-                  <span style={{fontWeight: 600, color: 'var(--text)'}}>Do I need experience with affiliate marketing?</span>
-                  <span style={{color: 'var(--primary)', fontSize: '1.2rem'}}>+</span>
-                </h3>
-                <div className="faq-answer" style={{maxHeight: 0, overflow: 'hidden', transition: 'all 0.3s ease'}}>
-                  <div style={{padding: '24px', color: 'var(--text-light)'}}>
-                    No experience required. Our blueprint starts from absolute beginner level with step-by-step video training that assumes no prior knowledge.
-                  </div>
+              <div className="faq-item fade-in">
+                <div className="faq-question">
+                  <span>Who is this guide for?</span>
+                  <i className="fas fa-chevron-down faq-icon"></i>
+                </div>
+                <div className="faq-answer">
+                  <p>This guide is for anyone who wants to create a system to make money from ClickBank, generate high-quality content, and learn how to market products effectively on ClickBank - whether you're a complete beginner or an experienced marketer looking to scale your results.</p>
                 </div>
               </div>
               
-              <div className="faq-item" style={{background: 'white', marginBottom: '16px', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 6px rgba(0,0,0,0.1)'}}>
-                <h3 className="faq-question" style={{padding: '24px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f3f4f6', margin: 0, fontSize: '1.1rem'}}>
-                  <span style={{fontWeight: 600, color: 'var(--text)'}}>Is there a money-back guarantee?</span>
-                  <span style={{color: 'var(--primary)', fontSize: '1.2rem'}}>+</span>
-                </h3>
-                <div className="faq-answer" style={{maxHeight: 0, overflow: 'hidden', transition: 'all 0.3s ease'}}>
-                  <div style={{padding: '24px', color: 'var(--text-light)'}}>
-                    Yes, you get a full 30-day money-back guarantee. If you're not satisfied for any reason, we'll refund every cent—no questions asked.
-                  </div>
+              <div className="faq-item fade-in">
+                <div className="faq-question">
+                  <span>How long until I see results?</span>
+                  <i className="fas fa-chevron-down faq-icon"></i>
+                </div>
+                <div className="faq-answer">
+                  <p>You can start seeing results within days or even hours of getting started. The more you make this a part of your daily routine and consistently implement the strategies, the better the results you'll get. Many students see their first commissions within 7-14 days.</p>
                 </div>
               </div>
               
-              <div className="faq-item" style={{background: 'white', marginBottom: '16px', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 6px rgba(0,0,0,0.1)'}}>
-                <h3 className="faq-question" style={{padding: '24px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f3f4f6', margin: 0, fontSize: '1.1rem'}}>
-                  <span style={{fontWeight: 600, color: 'var(--text)'}}>What if I don't have time for this?</span>
-                  <span style={{color: 'var(--primary)', fontSize: '1.2rem'}}>+</span>
-                </h3>
-                <div className="faq-answer" style={{maxHeight: 0, overflow: 'hidden', transition: 'all 0.3s ease'}}>
-                  <div style={{padding: '24px', color: 'var(--text-light)'}}>
-                    The blueprint is designed for busy people. You can complete the setup in just 2-3 hours per week. Many students work on this part-time while keeping their day jobs.
-                  </div>
+              <div className="faq-item fade-in">
+                <div className="faq-question">
+                  <span>How do I get instant access?</span>
+                  <i className="fas fa-chevron-down faq-icon"></i>
+                </div>
+                <div className="faq-answer">
+                  <p>Click the "Buy Now" button to get instant access to a PDF version of the guide and download links for all the bonuses. Everything is delivered digitally within minutes of your purchase for immediate access.</p>
                 </div>
               </div>
               
-              <div className="faq-item" style={{background: 'white', marginBottom: '16px', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 6px rgba(0,0,0,0.1)'}}>
-                <h3 className="faq-question" style={{padding: '24px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f3f4f6', margin: 0, fontSize: '1.1rem'}}>
-                  <span style={{fontWeight: 600, color: 'var(--text)'}}>Do I need to spend money on ads?</span>
-                  <span style={{color: 'var(--primary)', fontSize: '1.2rem'}}>+</span>
-                </h3>
-                <div className="faq-answer" style={{maxHeight: 0, overflow: 'hidden', transition: 'all 0.3s ease'}}>
-                  <div style={{padding: '24px', color: 'var(--text-light)'}}>
-                    No! Our blueprint focuses on free traffic methods. You can start earning without spending a single dollar on advertisements.
-                  </div>
+              <div className="faq-item fade-in">
+                <div className="faq-question">
+                  <span>Do I need to buy anything else?</span>
+                  <i className="fas fa-chevron-down faq-icon"></i>
+                </div>
+                <div className="faq-answer">
+                  <p>No, everything you need to learn about dominating ClickBank is included in this step-by-step guide. This is a complete system with no hidden costs or required upsells.</p>
+                </div>
+              </div>
+              
+              <div className="faq-item fade-in">
+                <div className="faq-question">
+                  <span>How much does it cost?</span>
+                  <i className="fas fa-chevron-down faq-icon"></i>
+                </div>
+                <div className="faq-answer">
+                  <p>The guide is currently available for just $49, a small investment compared to the hundreds of dollars you could spend on coaching or workshops. This limited-time price represents a 50% savings from the regular price of $99.</p>
+                </div>
+              </div>
+              
+              <div className="faq-item fade-in">
+                <div className="faq-question">
+                  <span>Is there a guarantee?</span>
+                  <i className="fas fa-chevron-down faq-icon"></i>
+                </div>
+                <div className="faq-answer">
+                  <p>Yes, you get a full 30 days to try the guide and if for any reason you're not satisfied, simply send an email to our support team and you'll receive a full refund with no questions asked. Your success is guaranteed.</p>
                 </div>
               </div>
             </div>
           </div>
         </section>
-      </main>
+
+        {/* Customer Reviews Section */}
+        <section id="reviews" className="section reviews-section">
+          <div className="container">
+            <h2 className="section-title fade-in">Customer Reviews</h2>
+            <div className="reviews-grid">
+              <div className="review-card fade-in">
+                <div className="rating">
+                  <i className="fas fa-star"></i>
+                  <i className="fas fa-star"></i>
+                  <i className="fas fa-star"></i>
+                  <i className="fas fa-star"></i>
+                  <i className="fas fa-star"></i>
+                </div>
+                <p className="review-text">
+                  "This guide completely transformed my ClickBank business. The niche research strategies alone have increased my conversions by 300%. I went from struggling to make $100/month to consistently earning $3,000+ monthly!"
+                </p>
+                <div className="review-author">@p_paterson</div>
+              </div>
+              
+              <div className="review-card fade-in">
+                <div className="rating">
+                  <i className="fas fa-star"></i>
+                  <i className="fas fa-star"></i>
+                  <i className="fas fa-star"></i>
+                  <i className="fas fa-star"></i>
+                  <i className="fas fa-star"></i>
+                </div>
+                <p className="review-text">
+                  "Finally, a ClickBank guide that actually works! The step-by-step approach made it easy to implement, and I saw my first commission within 48 hours. The content creation templates are pure gold!"
+                </p>
+                <div className="review-author">@jthemes</div>
+              </div>
+              
+              <div className="review-card fade-in">
+                <div className="rating">
+                  <i className="fas fa-star"></i>
+                  <i className="fas fa-star"></i>
+                  <i className="fas fa-star"></i>
+                  <i className="fas fa-star"></i>
+                  <i className="fas fa-star"></i>
+                </div>
+                <p className="review-text">
+                  "I've tried many ClickBank courses before, but this one is different. The insider strategies and real-world examples helped me build a sustainable affiliate business that generates passive income daily."
+                </p>
+                <div className="review-author">@lesserpas</div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
 
       {/* Footer */}
-      <footer style={{background: 'var(--text)', color: 'white', padding: '40px 0', textAlign: 'center'}}>
+      <footer className="footer">
         <div className="container">
-          <div style={{marginBottom: '24px'}}>
-            <p style={{color: '#9ca3af', fontSize: '0.9rem', marginBottom: '16px'}}>
-              <strong>EARNINGS DISCLAIMER:</strong> Results vary. Typical earnings range from $0-$500 in first 30 days. No income is guaranteed. Success requires effort and consistent implementation.
-            </p>
-            <p style={{color: '#9ca3af', fontSize: '0.9rem'}}>
-              For questions or support: <strong>support@allgoodthings.online</strong>
-            </p>
+          <div className="footer-content">
+            <p>If you have any concerns or issues, please don't hesitate to reach out to us at:</p>
+            <p><strong>support@allgoodthings.online</strong></p>
           </div>
-          
-          <div style={{borderTop: '1px solid #374151', paddingTop: '24px'}}>
-            <p>&copy; 2025 ClickBank Marketing Secret. All Rights Reserved.</p>
-            <p style={{fontSize: '0.9rem', color: '#9ca3af', marginTop: '8px'}}>
-              <a href="/privacy" style={{color: '#9ca3af', margin: '0 16px'}}>Privacy Policy</a>
-              <a href="/terms" style={{color: '#9ca3af', margin: '0 16px'}}>Terms & Conditions</a>
-              <a href="/refund" style={{color: '#9ca3af', margin: '0 16px'}}>Refund Policy</a>
-            </p>
+          <div className="footer-bottom">
+            <p>&copy; 2023 Click Bank Marketing Secret. All Rights Reserved</p>
+            <p><small>ClickBank is a registered trademark of Click Sales, Inc.</small></p>
           </div>
         </div>
       </footer>
+
+      {/* Scroll to Top Button */}
+      <button id="scrollUp" onClick={scrollToTop}>
+        <i className="fas fa-chevron-up"></i>
+      </button>
+
+      {/* Exit Intent Popup */}
+      {showExitPopup && (
+        <div id="exitPopup" className="exit-popup">
+          <div className="popup-content">
+            <button className="popup-close" onClick={closeExitPopup}>&times;</button>
+            <h3>🎯 Wait! Don't Miss This Limited Offer!</h3>
+            <p>Get our <strong>FREE ClickBank Quick-Start Checklist</strong> + 20% discount code before you leave!</p>
+            <form id="exitForm" onSubmit={handleExitFormSubmit} style={{marginTop: '1.5rem'}}>
+              <input 
+                type="email" 
+                placeholder="Enter your email address" 
+                required 
+                style={{width: '100%', padding: '1rem', border: '2px solid #e2e8f0', borderRadius: '10px', marginBottom: '1rem', fontSize: '1rem'}}
+              />
+              <button type="submit" className="cta-button" style={{width: '100%'}}>
+                <i className="fas fa-gift"></i> Get My Free Bonus Now!
+              </button>
+            </form>
+            <p style={{fontSize: '0.9rem', marginTop: '1rem', color: '#64748b'}}>
+              🔒 We respect your privacy. Unsubscribe at any time.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Analytics Scripts */}
       <Script
@@ -590,21 +670,8 @@ export default function ClickBankMarketingPage() {
         `}
       </Script>
 
-      {/* Facebook Pixel */}
-      <Script id="facebook-pixel" strategy="afterInteractive">
-        {`
-          !function(f,b,e,v,n,t,s)
-          {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-          n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-          if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-          n.queue=[];t=b.createElement(e);t.async=!0;
-          t.src=v;s=b.getElementsByTagName(e)[0];
-          s.parentNode.insertBefore(t,s)}(window, document,'script',
-          'https://connect.facebook.net/en_US/fbevents.js');
-          fbq('init', 'YOUR_PIXEL_ID');
-          fbq('track', 'PageView');
-        `}
-      </Script>
+      {/* Font Awesome */}
+      <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
     </>
   );
 } 

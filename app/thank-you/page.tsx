@@ -3,6 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 
+declare global {
+  interface Window {
+    gtag?: (...args: any[]) => void;
+    fbq?: (...args: any[]) => void;
+  }
+}
+
 export default function ThankYouPage() {
   const [timeLeft, setTimeLeft] = useState(600); // 10 minutes for upsell
   const [showUpsell, setShowUpsell] = useState(false);

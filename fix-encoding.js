@@ -1,4 +1,7 @@
-'use client';
+const fs = require('fs');
+const path = 'app/upsell-thank-you/page.tsx';
+
+const cleanContent = `'use client';
 
 import React from 'react';
 
@@ -20,3 +23,19 @@ export default function UpsellThankYouPage() {
     </div>
   );
 }
+`;
+
+try {
+  fs.writeFileSync(path, cleanContent, 'utf8');
+  console.log('File recreated with clean UTF-8 encoding');
+  
+  // Verify the file
+  const stats = fs.statSync(path);
+  console.log(`File size: ${stats.size} bytes`);
+  
+  // Test reading the file
+  const readContent = fs.readFileSync(path, 'utf8');
+  console.log('File can be read successfully');
+} catch (error) {
+  console.error('Error:', error);
+} 
