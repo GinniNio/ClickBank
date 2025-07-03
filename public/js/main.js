@@ -1,56 +1,124 @@
-// Main JavaScript for ClickBank Landing Page
+// Main JavaScript file for ClickBank Landing Page
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 ClickBank Landing Page loaded');
+    
     // Initialize all functionality
-    initLoader();
-    initScrollEffects();
-    initCountdownTimer();
-    initExitIntent();
     initMobileMenu();
+    initFAQAccordion();
     initScrollToTop();
-    initAnalytics();
+    initExitIntentPopup();
+    initCountdownTimer();
+    initScrollTracking();
+    initFadeInAnimations();
+    initPurchaseHandlers();
+    initEmailSubscription();
+    
+    // Track page view
+    trackPageView();
 });
 
-// Loading screen
-function initLoader() {
-    const loader = document.getElementById('loader-wrapper');
-    if (loader) {
-        setTimeout(() => {
-            loader.style.opacity = '0';
-            setTimeout(() => {
-                loader.style.display = 'none';
-            }, 500);
-        }, 1000);
+// Mobile menu functionality
+function initMobileMenu() {
+    const mobileToggle = document.getElementById('mobile-menu-toggle');
+    const navLinks = document.querySelector('.nav-links');
+    
+    if (mobileToggle && navLinks) {
+        mobileToggle.addEventListener('click', function() {
+            navLinks.classList.toggle('active');
+            mobileToggle.classList.toggle('active');
+        });
+        
+        // Close menu when clicking on a link
+        const links = navLinks.querySelectorAll('a');
+        links.forEach(link => {
+            link.addEventListener('click', function() {
+                navLinks.classList.remove('active');
+                mobileToggle.classList.remove('active');
+            });
+        });
     }
 }
 
-// Scroll effects and animations
-function initScrollEffects() {
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
+// FAQ Accordion functionality
+function initFAQAccordion() {
+    const faqItems = document.querySelectorAll('.faq-item');
+    
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        const answer = item.querySelector('.faq-answer');
+        
+        if (question && answer) {
+            question.addEventListener('click', function() {
+                const isActive = item.classList.contains('active');
+                
+                // Close all other FAQ items
+                faqItems.forEach(otherItem => {
+                    otherItem.classList.remove('active');
+                    const otherAnswer = otherItem.querySelector('.faq-answer');
+                    if (otherAnswer) otherAnswer.classList.remove('active');
+                });
+                
+                // Toggle current item
+                if (!isActive) {
+                    item.classList.add('active');
+                    answer.classList.add('active');
+                }
+            });
+        }
+    });
+}
 
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
+// Scroll to top functionality
+function initScrollToTop() {
+    const scrollUpBtn = document.getElementById('scrollUp');
+    
+    if (scrollUpBtn) {
+        // Show/hide scroll to top button
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 300) {
+                scrollUpBtn.style.display = 'block';
+            } else {
+                scrollUpBtn.style.display = 'none';
             }
         });
-    }, observerOptions);
+        
+        // Scroll to top when clicked
+        scrollUpBtn.addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    }
+}
 
-    // Observe all fade-in elements
-    document.querySelectorAll('.fade-in').forEach(el => {
-        observer.observe(el);
-    });
-
-    // Header scroll effect
-    const header = document.querySelector('.header');
-    if (header) {
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 100) {
-                header.style.boxShadow = 'var(--shadow-sm)';
-            } else {
-                header.style.boxShadow = 'none';
+// Exit intent popup
+function initExitIntentPopup() {
+    let popupShown = false;
+    const popup = document.getElementById('exit-popup');
+    
+    if (popup) {
+        // Show popup when user tries to leave
+        document.addEventListener('mouseleave', function(e) {
+            if (e.clientY <= 0 && !popupShown) {
+                popup.style.display = 'flex';
+                popupShown = true;
+                trackEvent('exit_intent_popup_shown');
+            }
+        });
+        
+        // Close popup
+        const closeBtn = popup.querySelector('.popup-close');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', function() {
+                popup.style.display = 'none';
+            });
+        }
+        
+        // Close popup when clicking outside
+        popup.addEventListener('click', function(e) {
+            if (e.target === popup) {
+                popup.style.display = 'none';
             }
         });
     }
@@ -59,281 +127,224 @@ function initScrollEffects() {
 // Countdown timer
 function initCountdownTimer() {
     const timerDisplay = document.getElementById('timer-display');
-    if (!timerDisplay) return;
-
-    // Set countdown to 24 hours from now
-    const endTime = new Date().getTime() + (24 * 60 * 60 * 1000);
-
-    function updateTimer() {
-        const now = new Date().getTime();
-        const distance = endTime - now;
-
-        if (distance < 0) {
-            timerDisplay.textContent = '00:00:00';
-            return;
-        }
-
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-        timerDisplay.textContent = 
-            `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    }
-
-    updateTimer();
-    setInterval(updateTimer, 1000);
-}
-
-// Exit intent popup
-function initExitIntent() {
-    const popup = document.getElementById('exit-popup');
-    if (!popup) return;
-
-    let hasShownPopup = false;
-
-    document.addEventListener('mouseleave', (e) => {
-        if (e.clientY <= 0 && !hasShownPopup) {
-            showPopup();
-            hasShownPopup = true;
-        }
-    });
-
-    // Also show popup after 30 seconds if user hasn't interacted
-    setTimeout(() => {
-        if (!hasShownPopup) {
-            showPopup();
-            hasShownPopup = true;
-        }
-    }, 30000);
-}
-
-function showPopup() {
-    const popup = document.getElementById('exit-popup');
-    if (popup) {
-        popup.style.display = 'flex';
-        trackEvent('popup_shown', { type: 'exit_intent' });
-    }
-}
-
-function closePopup() {
-    const popup = document.getElementById('exit-popup');
-    if (popup) {
-        popup.style.display = 'none';
-        trackEvent('popup_closed', { type: 'exit_intent' });
-    }
-}
-
-// Mobile menu
-function initMobileMenu() {
-    const toggle = document.getElementById('mobile-menu-toggle');
-    const navLinks = document.querySelector('.nav-links');
     
-    if (toggle && navLinks) {
-        toggle.addEventListener('click', () => {
-            navLinks.classList.toggle('active');
-            toggle.classList.toggle('active');
-        });
-
-        // Close menu when clicking on a link
-        navLinks.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', () => {
-                navLinks.classList.remove('active');
-                toggle.classList.remove('active');
-            });
-        });
-    }
-}
-
-// Scroll to top button
-function initScrollToTop() {
-    const scrollButton = document.getElementById('scroll-up');
-    
-    if (scrollButton) {
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 500) {
-                scrollButton.style.display = 'flex';
+    if (timerDisplay) {
+        // Set countdown to 24 hours from now
+        const endTime = new Date().getTime() + (24 * 60 * 60 * 1000);
+        
+        function updateTimer() {
+            const now = new Date().getTime();
+            const distance = endTime - now;
+            
+            if (distance > 0) {
+                const hours = Math.floor(distance / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                
+                timerDisplay.textContent = 
+                    `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
             } else {
-                scrollButton.style.display = 'none';
+                timerDisplay.textContent = '00:00:00';
+            }
+        }
+        
+        updateTimer();
+        setInterval(updateTimer, 1000);
+    }
+}
+
+// Scroll tracking
+function initScrollTracking() {
+    let scrollDepth = 0;
+    const scrollThresholds = [25, 50, 75, 100];
+    const trackedThresholds = new Set();
+    
+    window.addEventListener('scroll', function() {
+        const scrollTop = window.pageYOffset;
+        const docHeight = document.body.scrollHeight - window.innerHeight;
+        const scrollPercent = Math.round((scrollTop / docHeight) * 100);
+        
+        scrollThresholds.forEach(threshold => {
+            if (scrollPercent >= threshold && !trackedThresholds.has(threshold)) {
+                trackedThresholds.add(threshold);
+                trackEvent('scroll_depth', { percentage: threshold });
             }
         });
-    }
-}
-
-function scrollToTop() {
-    window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
     });
 }
 
-// FAQ functionality
-function toggleFAQ(button) {
-    const answer = button.nextElementSibling;
-    const icon = button.querySelector('.faq-icon');
+// Fade in animations
+function initFadeInAnimations() {
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
     
-    // Close other open FAQs
-    document.querySelectorAll('.faq-answer.active').forEach(activeAnswer => {
-        if (activeAnswer !== answer) {
-            activeAnswer.classList.remove('active');
-            activeAnswer.previousElementSibling.classList.remove('active');
-        }
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, observerOptions);
+    
+    const fadeElements = document.querySelectorAll('.fade-in');
+    fadeElements.forEach(el => observer.observe(el));
+}
+
+// Purchase handlers
+function initPurchaseHandlers() {
+    const purchaseButtons = document.querySelectorAll('[data-purchase]');
+    
+    purchaseButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const product = this.dataset.purchase;
+            const source = this.dataset.source || 'button_click';
+            
+            handlePurchase(product, source);
+        });
     });
-    
-    // Toggle current FAQ
-    answer.classList.toggle('active');
-    button.classList.toggle('active');
-    
-    // Track FAQ interaction
-    const question = button.querySelector('span').textContent;
-    trackFAQInteraction(question);
 }
 
-// Form handling
-async function handleSubscribe(event, source = 'form') {
-    event.preventDefault();
+// Email subscription
+function initEmailSubscription() {
+    const subscribeForm = document.getElementById('subscribe-form');
     
-    const form = event.target;
-    const email = form.querySelector('input[type="email"]').value;
-    
-    if (!email) {
-        showMessage('Please enter a valid email address', 'error');
-        return;
-    }
-    
-    try {
-        const response = await fetch('/api/subscribe', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email, source })
+    if (subscribeForm) {
+        subscribeForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = this.querySelector('input[type="email"]').value;
+            const source = this.dataset.source || 'form_submit';
+            
+            handleEmailSubscription(email, source);
         });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            showMessage(data.message, 'success');
-            form.reset();
-            closePopup();
-            trackEvent('email_subscribed', { source, email });
-        } else {
-            showMessage(data.message, 'error');
-        }
-    } catch (error) {
-        console.error('Subscription error:', error);
-        showMessage('An error occurred. Please try again.', 'error');
     }
 }
 
-async function handlePurchase(source) {
-    try {
-        const response = await fetch('/api/purchase', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ source })
-        });
-        
-        const data = await response.json();
-        
+// Handle purchase
+function handlePurchase(product, source) {
+    console.log('💰 Purchase attempt:', { product, source });
+    
+    // Track the purchase attempt
+    trackEvent('purchase_attempt', { product, source });
+    
+    // Simulate purchase processing
+    const button = event.target;
+    const originalText = button.textContent;
+    
+    button.textContent = 'Processing...';
+    button.disabled = true;
+    
+    // Send to API
+    fetch('/api/purchase', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ product, amount: 97, source })
+    })
+    .then(response => response.json())
+    .then(data => {
         if (data.success) {
-            trackEvent('purchase_attempt', { source });
-            // Redirect to checkout
-            window.location.href = data.redirectUrl;
+            // Redirect to checkout or success page
+            window.location.href = '/checkout';
         } else {
-            showMessage(data.message, 'error');
+            alert('Purchase failed. Please try again.');
+            button.textContent = originalText;
+            button.disabled = false;
         }
-    } catch (error) {
+    })
+    .catch(error => {
         console.error('Purchase error:', error);
-        showMessage('An error occurred. Please try again.', 'error');
-    }
-}
-
-// Message display
-function showMessage(message, type = 'info') {
-    // Create message element
-    const messageEl = document.createElement('div');
-    messageEl.className = `message message-${type}`;
-    messageEl.textContent = message;
-    messageEl.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 1rem 1.5rem;
-        border-radius: var(--radius-md);
-        color: white;
-        font-weight: 500;
-        z-index: 1000;
-        transform: translateX(100%);
-        transition: transform 0.3s ease;
-        ${type === 'success' ? 'background-color: var(--success-color);' : 
-          type === 'error' ? 'background-color: var(--warning-color);' : 
-          'background-color: var(--primary-color);'}
-    `;
-    
-    document.body.appendChild(messageEl);
-    
-    // Animate in
-    setTimeout(() => {
-        messageEl.style.transform = 'translateX(0)';
-    }, 100);
-    
-    // Remove after 5 seconds
-    setTimeout(() => {
-        messageEl.style.transform = 'translateX(100%)';
-        setTimeout(() => {
-            document.body.removeChild(messageEl);
-        }, 300);
-    }, 5000);
-}
-
-// Analytics tracking
-function initAnalytics() {
-    // Track page view
-    trackPageView();
-    
-    // Track scroll depth
-    let maxScroll = 0;
-    window.addEventListener('scroll', () => {
-        const scrollPercent = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
-        if (scrollPercent > maxScroll) {
-            maxScroll = scrollPercent;
-            if (maxScroll % 25 === 0) { // Track at 25%, 50%, 75%, 100%
-                trackScrollDepth(maxScroll);
-            }
-        }
+        alert('Purchase failed. Please try again.');
+        button.textContent = originalText;
+        button.disabled = false;
     });
 }
 
+// Handle email subscription
+function handleEmailSubscription(email, source) {
+    console.log('📧 Email subscription:', { email, source });
+    
+    // Track the subscription
+    trackEvent('email_subscription', { email, source });
+    
+    // Send to API
+    fetch('/api/subscribe', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, source })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Thank you for subscribing!');
+        } else {
+            alert('Subscription failed. Please try again.');
+        }
+    })
+    .catch(error => {
+        console.error('Subscription error:', error);
+        alert('Subscription failed. Please try again.');
+    });
+}
+
+// Track page view
 function trackPageView() {
+    const data = {
+        url: window.location.href,
+        referrer: document.referrer,
+        userAgent: navigator.userAgent
+    };
+    
     fetch('/api/track/pageview', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-    }).catch(console.error);
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => console.log('Page view tracked:', data))
+    .catch(error => console.error('Tracking error:', error));
 }
 
-function trackEvent(eventName, data = {}) {
-    console.log('Event tracked:', eventName, data);
-    // In production, send to your analytics service
-}
-
-function trackFAQInteraction(question) {
-    fetch('/api/track/faq', {
+// Track events
+function trackEvent(event, data = {}) {
+    const eventData = {
+        event,
+        data,
+        timestamp: new Date().toISOString(),
+        url: window.location.href
+    };
+    
+    fetch('/api/track/event', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question })
-    }).catch(console.error);
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(eventData)
+    })
+    .then(response => response.json())
+    .then(data => console.log('Event tracked:', data))
+    .catch(error => console.error('Event tracking error:', error));
 }
 
-function trackScrollDepth(percentage) {
-    fetch('/api/track/scroll', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ percentage })
-    }).catch(console.error);
-}
+// Header scroll effect
+window.addEventListener('scroll', function() {
+    const header = document.querySelector('.header');
+    if (header) {
+        if (window.pageYOffset > 50) {
+            header.classList.add('scrolled');
+        } else {
+            header.classList.remove('scrolled');
+        }
+    }
+});
 
 // Smooth scrolling for anchor links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -349,52 +360,15 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// Performance optimization
+// Service Worker registration
 if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
+    window.addEventListener('load', function() {
         navigator.serviceWorker.register('/sw.js')
-            .then(registration => {
-                console.log('SW registered: ', registration);
+            .then(function(registration) {
+                console.log('ServiceWorker registration successful');
             })
-            .catch(registrationError => {
-                console.log('SW registration failed: ', registrationError);
+            .catch(function(err) {
+                console.log('ServiceWorker registration failed');
             });
     });
-}
-
-// Add mobile menu styles dynamically
-const mobileMenuStyles = `
-    @media (max-width: 768px) {
-        .nav-links {
-            position: fixed;
-            top: 4rem;
-            left: 0;
-            right: 0;
-            background: var(--white);
-            border-top: 1px solid var(--gray-200);
-            flex-direction: column;
-            padding: 1rem;
-            transform: translateY(-100%);
-            opacity: 0;
-            transition: all 0.3s ease;
-            box-shadow: var(--shadow-md);
-        }
-        
-        .nav-links.active {
-            transform: translateY(0);
-            opacity: 1;
-        }
-        
-        .nav-links li {
-            margin: 0.5rem 0;
-        }
-        
-        .mobile-menu-toggle.active span {
-            transform: rotate(45deg);
-        }
-    }
-`;
-
-const styleSheet = document.createElement('style');
-styleSheet.textContent = mobileMenuStyles;
-document.head.appendChild(styleSheet); 
+} 

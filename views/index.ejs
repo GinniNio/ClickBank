@@ -7,7 +7,7 @@
     
     <!-- Favicon - multiple formats for compatibility -->
     <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
-    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
     <link rel="icon" type="image/png" href="/images/favicon.png">
     <link rel="shortcut icon" href="/images/favicon.ico">
     <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
@@ -23,7 +23,8 @@
     <meta property="og:title" content="<%= title %>">
     <meta property="og:description" content="<%= description %>">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="<%= process.env.BASE_URL || 'http://localhost:3000' %>">
+    <meta property="og:url" content="https://yourdomain.com">
+    <meta property="og:image" content="https://yourdomain.com/images/product-cover.jpg">
     
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
@@ -181,7 +182,7 @@
                     <li><span class="check-icon">✓</span> Lifetime updates</li>
                 </ul>
                 <div class="hero-cta">
-                    <button class="btn btn-primary btn-lg" onclick="handlePurchase('main_cta')">Get The Blueprint Now</button>
+                    <button class="btn btn-primary btn-lg" data-purchase="blueprint" data-source="main_cta">Get The Blueprint Now</button>
                 </div>
                 <div class="payment-methods">
                     <img src="/images/payment-methods.png" alt="Secure Payment Methods" class="payment-img" onerror="this.innerHTML='💳 Secure Payment';">
@@ -235,23 +236,23 @@
             </div>
             <div class="faq-container">
                 <div class="faq-item fade-in">
-                    <button class="faq-question" onclick="toggleFAQ(this)"><span>Is this suitable for beginners?</span><span class="faq-icon">▼</span></button>
+                    <button class="faq-question"><span>Is this suitable for beginners?</span><span class="faq-icon">▼</span></button>
                     <div class="faq-answer"><p>Absolutely! Our blueprint is designed for all skill levels. We start with the basics and gradually move to advanced strategies, ensuring everyone can follow along and succeed.</p></div>
                 </div>
                 <div class="faq-item fade-in">
-                    <button class="faq-question" onclick="toggleFAQ(this)"><span>How long does it take to see results?</span><span class="faq-icon">▼</span></button>
+                    <button class="faq-question"><span>How long does it take to see results?</span><span class="faq-icon">▼</span></button>
                     <div class="faq-answer"><p>Most students start seeing their first sales within 30-60 days of implementing our strategies. However, results vary based on your effort and market conditions.</p></div>
                 </div>
                 <div class="faq-item fade-in">
-                    <button class="faq-question" onclick="toggleFAQ(this)"><span>What if I'm not satisfied?</span><span class="faq-icon">▼</span></button>
+                    <button class="faq-question"><span>What if I'm not satisfied?</span><span class="faq-icon">▼</span></button>
                     <div class="faq-answer"><p>We offer a 30-day money-back guarantee. If you're not completely satisfied with the blueprint, simply contact us for a full refund, no questions asked.</p></div>
                 </div>
                 <div class="faq-item fade-in">
-                    <button class="faq-question" onclick="toggleFAQ(this)"><span>Do I need any special tools or software?</span><span class="faq-icon">▼</span></button>
+                    <button class="faq-question"><span>Do I need any special tools or software?</span><span class="faq-icon">▼</span></button>
                     <div class="faq-answer"><p>No expensive tools required! We focus on free and low-cost methods that anyone can use. We'll recommend some optional tools that can enhance your results.</p></div>
                 </div>
                 <div class="faq-item fade-in">
-                    <button class="faq-question" onclick="toggleFAQ(this)"><span>Is there ongoing support?</span><span class="faq-icon">▼</span></button>
+                    <button class="faq-question"><span>Is there ongoing support?</span><span class="faq-icon">▼</span></button>
                     <div class="faq-answer"><p>Yes! You'll get access to our private community where you can ask questions, share experiences, and get support from both our team and fellow marketers.</p></div>
                 </div>
             </div>
@@ -263,7 +264,7 @@
                 <h3>Ready to Transform Your ClickBank Success?</h3>
                 <p>Join thousands of successful marketers and start your journey today.</p>
                 <div class="hero-cta">
-                    <button class="btn btn-primary btn-lg" onclick="handlePurchase('footer_cta')">Get Started Now</button>
+                    <button class="btn btn-primary btn-lg" data-purchase="blueprint" data-source="footer_cta">Get Started Now</button>
                 </div>
             </div>
             <div class="footer-bottom">
@@ -272,13 +273,13 @@
             </div>
         </div>
     </footer>
-    <button class="scroll-up" id="scroll-up" onclick="scrollToTop()">↑</button>
+    <button class="scroll-up" id="scrollUp">↑</button>
     <div class="exit-popup" id="exit-popup">
         <div class="popup-content">
-            <button class="popup-close" onclick="closePopup()">×</button>
+            <button class="popup-close">×</button>
             <h3>Wait! Don't Miss Out</h3>
             <p>Get your FREE ClickBank Quick-Start Checklist and exclusive 20% discount code before you go!</p>
-            <form class="popup-form" onsubmit="handleSubscribe(event, 'exit_popup')">
+            <form class="popup-form" id="subscribe-form" data-source="exit_popup">
                 <input type="email" placeholder="Enter your email address" required>
                 <button type="submit" class="btn btn-primary">Get My Free Checklist</button>
             </form>

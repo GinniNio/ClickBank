@@ -28,6 +28,20 @@ if (fs.existsSync(viewsPath)) {
     }
 }
 
+// Security headers middleware
+app.use((req, res, next) => {
+    // Set CSP header to allow inline scripts and styles
+    res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self';");
+    
+    // Other security headers
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    
+    next();
+});
+
 // View engine setup
 app.set('view engine', 'ejs');
 app.set('views', viewsPath);
@@ -38,6 +52,40 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Body parsing
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Analytics tracking middleware
+app.use((req, res, next) => {
+    // Track page views
+    if (req.path !== '/favicon.ico' && !req.path.startsWith('/images/') && !req.path.startsWith('/css/') && !req.path.startsWith('/js/')) {
+        console.log(`Page view tracked: ${req.path}`);
+    }
+    next();
+});
+
+// API Routes
+app.post('/api/track/pageview', (req, res) => {
+    const { url, referrer, userAgent } = req.body;
+    console.log('📊 Page view tracked:', { url, referrer, userAgent });
+    res.json({ success: true, message: 'Page view tracked' });
+});
+
+app.post('/api/track/event', (req, res) => {
+    const { event, data } = req.body;
+    console.log('📊 Event tracked:', event, data);
+    res.json({ success: true, message: 'Event tracked' });
+});
+
+app.post('/api/subscribe', (req, res) => {
+    const { email, source } = req.body;
+    console.log('📧 Email subscription:', { email, source });
+    res.json({ success: true, message: 'Subscription successful' });
+});
+
+app.post('/api/purchase', (req, res) => {
+    const { product, amount, source } = req.body;
+    console.log('💰 Purchase attempt:', { product, amount, source });
+    res.json({ success: true, message: 'Purchase processed' });
+});
 
 // Test route first
 app.get('/test', (req, res) => {

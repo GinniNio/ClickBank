@@ -1,75 +1,65 @@
 import type { Metadata } from 'next';
-import { Inter, Poppins } from 'next/font/google';
-import './globals.css';
-import { ThemeProvider } from '@/components/theme-provider';
-import { Toaster } from 'react-hot-toast';
-import Analytics from '@/components/analytics';
+import { Inter } from 'next/font/google';
+import Providers from '~/components/atoms/Providers';
+import '~/assets/styles/base.css';
 
 const inter = Inter({
+  variable: '--font-geist-sans',
   subsets: ['latin'],
-  variable: '--font-inter',
-  display: 'swap',
-});
-
-const poppins = Poppins({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800'],
-  variable: '--font-poppins',
   display: 'swap',
 });
 
 export const metadata: Metadata = {
   title: {
-    default: 'Digital Marketing Secrets - ClickBank Success Blueprint',
-    template: '%s | Digital Marketing Secrets'
+    default: 'ClickBank Marketing Secrets - Unlock Your Digital Success',
+    template: '%s | ClickBank Marketing Secrets',
   },
-  description: 'Discover proven ClickBank marketing strategies that generate $10K+ monthly income. Learn content marketing, viral marketing, and video marketing secrets from top earners.',
+  description:
+    'Discover proven ClickBank marketing strategies, tools, and techniques to boost your affiliate income. Join thousands of successful marketers today!',
   keywords: [
-    'ClickBank marketing',
+    'ClickBank',
     'affiliate marketing',
     'digital marketing',
-    'content marketing',
-    'viral marketing',
-    'video marketing',
-    'online income',
+    'online business',
     'passive income',
     'marketing strategies',
-    'clickbank success'
+    'affiliate programs',
+    'online marketing',
   ],
-  authors: [{ name: 'Digital Marketing Experts' }],
-  creator: 'Digital Marketing Platform',
-  publisher: 'Digital Marketing Secrets',
-  formatDetection: {
-    email: false,
-    address: false,
-    telephone: false,
-  },
-  metadataBase: new URL('https://digitalmarketingsecrets.com'),
+  authors: [
+    {
+      name: 'ClickBank Marketing Secrets',
+    },
+  ],
+  creator: 'ClickBank Marketing Secrets',
+  metadataBase: new URL('https://clickbankmarketingsecret.club'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://digitalmarketingsecrets.com',
-    title: 'Digital Marketing Secrets - ClickBank Success Blueprint',
-    description: 'Discover proven ClickBank marketing strategies that generate $10K+ monthly income.',
-    siteName: 'Digital Marketing Secrets',
+    url: 'https://clickbankmarketingsecret.club',
+    title: 'ClickBank Marketing Secrets - Unlock Your Digital Success',
+    description:
+      'Discover proven ClickBank marketing strategies, tools, and techniques to boost your affiliate income. Join thousands of successful marketers today!',
+    siteName: 'ClickBank Marketing Secrets',
     images: [
       {
-        url: '/og-image.jpg',
+        url: '/images/product-cover.jpg',
         width: 1200,
         height: 630,
-        alt: 'Digital Marketing Secrets - ClickBank Success Blueprint',
+        alt: 'ClickBank Marketing Secrets',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Digital Marketing Secrets - ClickBank Success Blueprint',
-    description: 'Discover proven ClickBank marketing strategies that generate $10K+ monthly income.',
-    images: ['/og-image.jpg'],
-    creator: '@digitalmarketing',
+    title: 'ClickBank Marketing Secrets - Unlock Your Digital Success',
+    description:
+      'Discover proven ClickBank marketing strategies, tools, and techniques to boost your affiliate income. Join thousands of successful marketers today!',
+    images: ['/images/product-cover.jpg'],
+    creator: '@clickbanksecrets',
   },
   robots: {
     index: true,
@@ -84,61 +74,19 @@ export const metadata: Metadata = {
   },
   verification: {
     google: 'your-google-verification-code',
-    yandex: 'your-yandex-verification-code',
-    yahoo: 'your-yahoo-verification-code',
   },
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-        <link rel="manifest" href="/site.webmanifest" />
-        <meta name="theme-color" content="#3b82f6" />
-        <meta name="msapplication-TileColor" content="#3b82f6" />
-      </head>
-      <body className={`${inter.variable} ${poppins.variable} font-sans antialiased`}>
-        <ThemeProvider
-          defaultTheme="light"
-          storageKey="ui-theme"
-        >
-          {children}
-          <Toaster
-            position="top-right"
-            toastOptions={{
-              duration: 4000,
-              style: {
-                background: '#363636',
-                color: '#fff',
-              },
-              success: {
-                duration: 3000,
-                iconTheme: {
-                  primary: '#22c55e',
-                  secondary: '#fff',
-                },
-              },
-              error: {
-                duration: 5000,
-                iconTheme: {
-                  primary: '#ef4444',
-                  secondary: '#fff',
-                },
-              },
-            }}
-          />
-          <Analytics />
-        </ThemeProvider>
+    <html lang="en" className={`${inter.variable}`}>
+      <body className="overflow-x-hidden bg-white font-default leading-relaxed text-slate-600 dark:bg-slate-900 dark:text-slate-400">
+        <Providers>
+          <div className="relative">
+            <div className="pointer-events-none absolute inset-0 z-[-1] bg-gradient-to-tr from-blue-50 via-white to-cyan-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800" />
+            {children}
+          </div>
+        </Providers>
       </body>
     </html>
   );
